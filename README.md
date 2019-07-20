@@ -30,7 +30,7 @@ class CounterMessage extends DynamicMessage {
   
   render() {
     return {
-      content: `Counter: ${this.counter}`
+      content: `Counter: ${this.counter}`,
     };
   }
 }
