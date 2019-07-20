@@ -31,7 +31,7 @@ class CounterMessage {
   
   render() {
     return {
-      content: `Counter: ${}`
+      content: `Counter: ${this.counter}`
     };
   }
 }
