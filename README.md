@@ -20,12 +20,12 @@ class CounterMessage {
     triggersRender: true, // default
     includeBots: false, // default
   })
-  increment(user, channel) {
+  increment(user, channel, reactions) {
     this.counter += 1;
   }
   
   @OnReaction(':thumbsdown:')
-  increment(user, channel) {
+  increment(user, channel, reactions) {
     this.counter -= 1;
   }
   
