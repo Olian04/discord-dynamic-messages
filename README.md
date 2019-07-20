@@ -9,7 +9,11 @@ import {
 
 @DynamicMessage
 class CounterMessage {
-  private counter = 0;
+  private counter;
+  constructor(args) {
+    super();
+    this.counter = args.initalCounterValue;
+  }
 
   @OnReaction(':thumbsup:', {
     removedWhenDone: true, // default
@@ -35,7 +39,9 @@ class CounterMessage {
 const client = new Client();
 client.on('ready', async () => {
   client.on('message', async (message) => {
-    CounterMessage.replyTo(message);
+    CounterMessage.replyTo(message, {
+      initialCounterValue: 0,
+    });
   })
 })
 
