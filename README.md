@@ -7,8 +7,7 @@ import {
   OnReaction,
 } from 'discordjs-decorators';
 
-@DynamicMessage
-class CounterMessage {
+class CounterMessage extends DynamicMessage {
   private counter;
   constructor(args) {
     super();
