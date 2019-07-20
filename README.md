@@ -44,6 +44,5 @@ client.on('ready', async () => {
     });
   })
 })
-
 client.login(discord_secret);
 ```
