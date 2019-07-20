@@ -1,4 +1,4 @@
-# discordjs-decorators
+# discordjs-dynamic-messages
 
 ```ts
 import {
