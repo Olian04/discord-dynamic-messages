@@ -1,6 +1,7 @@
 # discordjs-dynamic-messages
 
 ```ts
+import { Client } from 'discord.js';
 import {
   DynamicMessage,
   OnReaction,
@@ -30,4 +31,13 @@ class CounterMessage {
     };
   }
 }
+
+const client = new Client();
+client.on('ready', async () => {
+  client.on('message', async (message) => {
+    CounterMessage.replyTo(message);
+  })
+})
+
+client.login(discord_secret);
 ```
