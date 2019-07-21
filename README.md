@@ -5,7 +5,7 @@ import { Client } from 'discord.js';
 import {
   DynamicMessage,
   OnReaction,
-} from 'discordjs-decorators';
+} from 'discordjs-dynamic-messages';
 
 class CounterMessage extends DynamicMessage {
   private counter;
