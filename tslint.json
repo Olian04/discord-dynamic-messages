@@ -14,7 +14,7 @@
       "allow-pascal-case",
       "ban-keywords"
     ],
-    "no-console": false
+    "no-console": true
   },
   "rulesDirectory": []
 }

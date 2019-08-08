@@ -1,6 +1,6 @@
 {
   "name": "discord-dynamic-messages",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Create auto-updating component-like messages in discord.js with ease.",
   "main": "dist/index.js",
   "scripts": {

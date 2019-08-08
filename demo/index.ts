@@ -1,8 +1,8 @@
 import { Client } from 'discord.js';
 import * as path from 'path';
+import { AccumulatorMessage } from './AccumulatorMessage';
 import { CounterMessage } from './CounterMessage';
 import { EchoMessage } from './EchoMessage';
-import { AccumulatorMessage } from './AccumulatorMessage';
 
 // tslint:disable-next-line no-var-requires
 const secrets = require(path.resolve(__dirname, '..', 'secrets.json'));
