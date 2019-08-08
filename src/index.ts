@@ -2,15 +2,33 @@ import { DMChannel, GroupDMChannel, Message, MessageReaction, RichEmbed, TextCha
 import emojiUtils from 'node-emoji';
 import 'reflect-metadata';
 
+interface IReactionConfig {
+  hidden: boolean;
+  triggerRender: boolean;
+  removeWhenDone: boolean;
+  ignoreBots: boolean;
+  ignoreHumans: boolean;
+}
+
 interface IMetadata {
   reactionHandlers: {
-    [emoji: string]: string;
+    [emoji: string]: {
+      handlerKey: string;
+      config: IReactionConfig;
+    };
   };
 }
 
 const PROPERTY_METADATA_KEY = Symbol('propertyMetadata');
 const initialMetadata = (): IMetadata => ({
   reactionHandlers: {},
+});
+const defaultReactionConfig = (): IReactionConfig => ({
+  hidden: false,
+  triggerRender: true,
+  removeWhenDone: true,
+  ignoreBots: true,
+  ignoreHumans: false,
 });
 
 const updateMetadata = (target, cb: (metadata: IMetadata) => IMetadata) => {
@@ -30,11 +48,15 @@ const updateMetadata = (target, cb: (metadata: IMetadata) => IMetadata) => {
   );
 };
 
-export const OnReaction = (emoji: string) => (target, propertyKey: string, descriptor: PropertyDescriptor) => {
+export const OnReaction = (emoji: string, config: Partial<IReactionConfig> = {}) =>
+  (target, propertyKey: string, descriptor: PropertyDescriptor) => {
   updateMetadata(target, (allMetadata) => {
 
     // Add the reaction handler to the instance meta data
-    allMetadata.reactionHandlers[emoji] = propertyKey;
+    allMetadata.reactionHandlers[emoji] = { 
+      handlerKey: propertyKey,
+      config: {...config, ...defaultReactionConfig()},
+    };
 
     return allMetadata;
   });
@@ -75,7 +97,6 @@ export abstract class DynamicMessage {
 
   public reRender() {
     if (this.isResponse) {
-      // TODO: Maybe this should be handled by the consumer?
       this.message.edit(`${this.responseTo} ${this.render()}`);
     } else {
       this.message.edit(this.render());
@@ -86,9 +107,10 @@ export abstract class DynamicMessage {
 
   private setupReactionCollector = async () => {
     await Promise.all(Object.keys(this.metadata.reactionHandlers)
+      .filter((emojiCode) => !this.metadata.reactionHandlers[emojiCode].config.hidden)
       .map((emojiCode) => emojiUtils.get(emojiCode))
       .map((emoji) => {
-        return this.message.react(emoji); // TODO: This should be an option
+        return this.message.react(emoji);
       }));
 
     const collector = this.message.createReactionCollector(
@@ -98,15 +120,26 @@ export abstract class DynamicMessage {
     collector.on('collect', (reaction: MessageReaction) => {
       const emojiCode = emojiUtils.unemojify(reaction.emoji.name);
       reaction.users
-        .filter((user) => !user.bot) // TODO: This should be an option
+        .filter((user) => {
+          const { ignoreBots, ignoreHumans } = this.metadata.reactionHandlers[emojiCode].config;
+          if (user.bot) {
+            return !ignoreBots;
+          } else {
+            return !ignoreHumans;
+          }
+        })
         .forEach((user) => {
-          const handlerKey = this.metadata.reactionHandlers[emojiCode];
+          const { handlerKey, config: { removeWhenDone } } = this.metadata.reactionHandlers[emojiCode];
           this[handlerKey](user, this.message.channel, reaction);
 
-          reaction.remove(user); // TODO: This should be an option
+          if (removeWhenDone) {
+            reaction.remove(user);
+          }
         });
-
-      this.reRender();
+      
+      if (this.metadata.reactionHandlers[emojiCode].config.triggerRender) {
+        this.reRender();
+      }
     });
   }
 }
