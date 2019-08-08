@@ -71,6 +71,15 @@ export abstract class DynamicMessage {
     this.responseTo = msg.author;
   }
 
+  public reRender() {
+    if (this.isResponse) {
+      // TODO: Maybe this should be handled by the consumer?
+      this.message.edit(`${this.responseTo} ${this.render()}`);
+    } else {
+      this.message.edit(this.render());
+    }
+  }
+
   protected abstract render(): string | RichEmbed;
 
   private setupReactionCollector = async () => {
@@ -95,12 +104,7 @@ export abstract class DynamicMessage {
           reaction.remove(user); // TODO: This should be an option
         });
 
-      if (this.isResponse) {
-        // TODO: Maybe this should be handled by the consumer?
-        this.message.edit(`${this.responseTo} ${this.render()}`);
-      } else {
-        this.message.edit(this.render());
-      }
+        this.reRender();
     });
   }
 }
