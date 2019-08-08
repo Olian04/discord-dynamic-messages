@@ -6,7 +6,7 @@ Basically it helps with creating messages that dynamically change their contents
 
 ```ts
 import { Client } from 'discord.js';
-import { DynamicMessage, OnReaction } from 'discord-dynamic-message';
+import { DynamicMessage, OnReaction } from 'discord-dynamic-messages';
 
 export class CounterMessage extends DynamicMessage {
   private counter;
