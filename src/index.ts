@@ -90,7 +90,8 @@ export abstract class DynamicMessage {
         .filter((user) => !user.bot) // TODO: This should be an option
         .forEach((user) => {
           const handlerKey = this.metadata.reactionHandlers[emojiCode];
-          this[handlerKey](user, this.message.channel); // This should preserve the context of "this" within handler
+          this[handlerKey](user, this.message.channel, reaction);
+
           reaction.remove(user); // TODO: This should be an option
         });
 
