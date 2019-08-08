@@ -12,12 +12,12 @@ export class CounterMessage extends DynamicMessage {
   }
 
   @OnReaction(':thumbsup:')
-  public increment(user, channel) {
+  public increment(user, channel, reaction) {
     this.counter += 1;
   }
 
   @OnReaction(':thumbsdown:')
-  public decrement(user, channel) {
+  public decrement(user, channel, reaction) {
     this.counter -= 1;
   }
 
