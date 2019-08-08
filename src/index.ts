@@ -2,6 +2,12 @@ import { DMChannel, GroupDMChannel, Message, MessageReaction, RichEmbed, TextCha
 import emojiUtils from 'node-emoji';
 import 'reflect-metadata';
 
+async function awaitAllInOrder(array) {
+  for (const promise of array) {
+    await promise;
+  }
+}
+
 interface IReactionConfig {
   hidden: boolean;
   triggerRender: boolean;
@@ -11,8 +17,10 @@ interface IReactionConfig {
 }
 
 interface IMetadata {
+  numberOfRegisteredReactionHandlers: number;
   reactionHandlers: {
     [emoji: string]: {
+      registrationOrder: number;
       handlerKey: string;
       config: IReactionConfig;
     };
@@ -22,6 +30,7 @@ interface IMetadata {
 const PROPERTY_METADATA_KEY = Symbol('propertyMetadata');
 const initialMetadata = (): IMetadata => ({
   reactionHandlers: {},
+  numberOfRegisteredReactionHandlers: 0,
 });
 const defaultReactionConfig = (): IReactionConfig => ({
   hidden: false,
@@ -53,10 +62,12 @@ export const OnReaction = (emoji: string, config: Partial<IReactionConfig> = {})
   updateMetadata(target, (allMetadata) => {
 
     // Add the reaction handler to the instance meta data
-    allMetadata.reactionHandlers[emoji] = { 
+    allMetadata.reactionHandlers[emoji] = {
+      registrationOrder: allMetadata.numberOfRegisteredReactionHandlers,
       handlerKey: propertyKey,
       config: {...config, ...defaultReactionConfig()},
     };
+    allMetadata.numberOfRegisteredReactionHandlers += 1;
 
     return allMetadata;
   });
@@ -106,12 +117,13 @@ export abstract class DynamicMessage {
   protected abstract render(): string | RichEmbed;
 
   private setupReactionCollector = async () => {
-    await Promise.all(Object.keys(this.metadata.reactionHandlers)
+    await awaitAllInOrder(Object.keys(this.metadata.reactionHandlers)
       .filter((emojiCode) => !this.metadata.reactionHandlers[emojiCode].config.hidden)
+      .sort((a, b) =>
+        this.metadata.reactionHandlers[a].registrationOrder - this.metadata.reactionHandlers[b].registrationOrder,
+      )
       .map((emojiCode) => emojiUtils.get(emojiCode))
-      .map((emoji) => {
-        return this.message.react(emoji);
-      }));
+      .map((emoji) => this.message.react(emoji)));
 
     const collector = this.message.createReactionCollector(
       (reaction: MessageReaction) => emojiUtils.unemojify(reaction.emoji.name) in this.metadata.reactionHandlers,
@@ -136,7 +148,7 @@ export abstract class DynamicMessage {
             reaction.remove(user);
           }
         });
-      
+
       if (this.metadata.reactionHandlers[emojiCode].config.triggerRender) {
         this.reRender();
       }
