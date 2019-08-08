@@ -30,7 +30,7 @@ const client = new Client();
 client.on('ready', () => {
   client.on('message', (message) => {
     new CounterMessage({
-      initialCounterValue: Number(args[0]),
+      initialCounterValue: 0,
     }).replyTo(message);
   });
 });
