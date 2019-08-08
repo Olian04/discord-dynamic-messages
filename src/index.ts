@@ -2,7 +2,7 @@ import { DMChannel, GroupDMChannel, Message, MessageReaction, RichEmbed, TextCha
 import emojiUtils from 'node-emoji';
 import 'reflect-metadata';
 
-async function awaitAllInOrder(array) {
+async function awaitAllInOrder(array: Array<Promise<any>>) {
   for (const promise of array) {
     await promise;
   }
@@ -65,7 +65,7 @@ export const OnReaction = (emoji: string, config: Partial<IReactionConfig> = {})
     allMetadata.reactionHandlers[emoji] = {
       registrationOrder: allMetadata.numberOfRegisteredReactionHandlers,
       handlerKey: propertyKey,
-      config: {...config, ...defaultReactionConfig()},
+      config: {...defaultReactionConfig(), ...config},
     };
     allMetadata.numberOfRegisteredReactionHandlers += 1;
 
@@ -117,13 +117,16 @@ export abstract class DynamicMessage {
   protected abstract render(): string | RichEmbed;
 
   private setupReactionCollector = async () => {
-    await awaitAllInOrder(Object.keys(this.metadata.reactionHandlers)
+    await Object.keys(this.metadata.reactionHandlers)
+      .map((arg) => {
+        return arg;
+      })
       .filter((emojiCode) => !this.metadata.reactionHandlers[emojiCode].config.hidden)
       .sort((a, b) =>
         this.metadata.reactionHandlers[a].registrationOrder - this.metadata.reactionHandlers[b].registrationOrder,
       )
       .map((emojiCode) => emojiUtils.get(emojiCode))
-      .map((emoji) => this.message.react(emoji)));
+      .reduce((promise, emoji) => promise.then(() => this.message.react(emoji)), Promise.resolve());
 
     const collector = this.message.createReactionCollector(
       (reaction: MessageReaction) => emojiUtils.unemojify(reaction.emoji.name) in this.metadata.reactionHandlers,

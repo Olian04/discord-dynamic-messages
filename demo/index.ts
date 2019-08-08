@@ -2,6 +2,7 @@ import { Client } from 'discord.js';
 import * as path from 'path';
 import { CounterMessage } from './CounterMessage';
 import { EchoMessage } from './EchoMessage';
+import { AccumulatorMessage } from './AccumulatorMessage';
 
 // tslint:disable-next-line no-var-requires
 const secrets = require(path.resolve(__dirname, '..', 'secrets.json'));
@@ -20,6 +21,8 @@ client.on('ready', async ()  => {
       }).sendTo(message.channel);
     } else if (command === 'echo') {
       new EchoMessage(args.join(' ')).replyTo(message);
+    } else if (command === 'acc') {
+      new AccumulatorMessage().sendTo(message.channel);
     }
   });
 });
