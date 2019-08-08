@@ -24,7 +24,7 @@ class CounterMessage extends DynamicMessage {
   }
   
   @OnReaction(':thumbsdown:')
-  increment(user, channel, reactions) {
+  decrement(user, channel, reactions) {
     this.counter -= 1;
   }
   

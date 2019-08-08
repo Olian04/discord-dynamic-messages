@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+      "target": "es6",
+      "module": "commonjs",
+      "lib": [
+          "esnext",
+          "es7"
+      ],
+      "outDir": "dist/",
+      "declaration": true,
+      "allowSyntheticDefaultImports": true,
+      "esModuleInterop": true,
+      "noImplicitReturns": true,
+      "noImplicitThis": true,
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true
+  },
+  "include": [
+      "src/**/*.ts"
+  ],
+  "exclude": [
+      "node_modules",
+      "src/**/*.spec.ts"
+  ]
+}

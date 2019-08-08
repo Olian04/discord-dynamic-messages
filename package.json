@@ -1,0 +1,35 @@
+{
+  "name": "discord-dynamic-messages",
+  "version": "0.1.0",
+  "description": "```ts import { Client } from 'discord.js'; import {   DynamicMessage,   OnReaction, } from 'discordjs-dynamic-messages';",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "demo:start": "ts-node demo/index.ts",
+    "lint": "tslint --fix -c ./tslint.json 'src/**/*{.ts,.tsx}'",
+    "lint:nofix": "tslint -c ./tslint.json 'src/**/*{.ts,.tsx}'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Olian04/discordjs-dynamic-messages.git"
+  },
+  "author": "Olian04",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Olian04/discordjs-dynamic-messages/issues"
+  },
+  "homepage": "https://github.com/Olian04/discordjs-dynamic-messages#readme",
+  "dependencies": {
+    "@types/node-emoji": "^1.8.1",
+    "@types/reflect-metadata": "^0.1.0",
+    "discord.js": "^11.5.1",
+    "node-emoji": "^1.10.0",
+    "reflect-metadata": "^0.1.13"
+  },
+  "devDependencies": {
+    "@types/node": "^12.7.1",
+    "typescript": "^3.5.3",
+    "ts-node": "^8.3.0",
+    "tslint": "^5.18.0"
+  }
+}
