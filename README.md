@@ -36,3 +36,16 @@ client.on('ready', () => {
 });
 client.login(discord_secret);
 ```
+
+## Install
+
+1. Install library: `npm i discord-dynamic-messages`
+2. Enable `experimentalDecorators` and `emitDecoratorMetadata` in `tsconfig.json`
+3. Try the example above.
+
+## Development
+
+1. Grab your discord-bot secret from the [discord developer portal](https://discordapp.com/developers/applications).
+2. Create a `secrets.json` file and store your discord-bot secret as `discord_token` inside it.
+3. Install dependencies: `npm i`.
+4. Start demo: `npm run demo:start`.
