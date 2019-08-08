@@ -63,12 +63,14 @@ export abstract class DynamicMessage {
 
   public async sendTo(channel: TextChannel | DMChannel | GroupDMChannel) {
     this.message = (await channel.send(this.render())) as Message;
+    return this;
   }
 
   public async replyTo(msg: Message) {
     this.message = (await msg.reply(this.render())) as Message;
     this.isResponse = true;
     this.responseTo = msg.author;
+    return this;
   }
 
   public reRender() {
@@ -104,7 +106,7 @@ export abstract class DynamicMessage {
           reaction.remove(user); // TODO: This should be an option
         });
 
-        this.reRender();
+      this.reRender();
     });
   }
 }

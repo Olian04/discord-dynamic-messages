@@ -1,12 +1,14 @@
 {
   "name": "discord-dynamic-messages",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Create auto-updating component-like messages in discord.js with ease.",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
+    "build": "rm -rf dist && tsc",
     "demo:start": "ts-node demo/index.ts",
     "lint": "tslint --fix -c ./tslint.json 'src/**/*{.ts,.tsx}'",
-    "lint:nofix": "tslint -c ./tslint.json 'src/**/*{.ts,.tsx}'"
+    "lint:nofix": "tslint -c ./tslint.json 'src/**/*{.ts,.tsx}'",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
