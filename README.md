@@ -1,4 +1,4 @@
-# discordjs-dynamic-messages
+# discord-dynamic-messages
 
 ```ts
 import { Client } from 'discord.js';
