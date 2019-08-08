@@ -39,9 +39,11 @@ client.login(discord_secret);
 
 ## Install
 
-1. Install library: `npm i discord-dynamic-messages`
-2. Enable `experimentalDecorators` and `emitDecoratorMetadata` in `tsconfig.json`
+1. Install library: `npm i discord-dynamic-messages`.
+2. Enable `experimentalDecorators` and `emitDecoratorMetadata` in `tsconfig.json`.
 3. Try the example above.
+
+_Note: If you are using vscode you might need to set `javascript.implicitProjectConfig.experimentalDecorators` to `true` in the workspace settings._
 
 ## Development
 
