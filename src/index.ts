@@ -43,14 +43,17 @@ export const OnReaction = (emoji: string) => (target, propertyKey: string, descr
 export abstract class DynamicMessage {
   private isResponse: boolean = false;
   private responseTo: User = null;
-
   private metadata: IMetadata;
-  private __message: Message;
-  private set message(newMessage: Message) {
+  private __message: Message = null;
+
+  public set message(newMessage: Message) {
+    if (this.__message !== null) {
+      throw new Error(`DynamicMessage#message may not be reassigned once assigned!`);
+    }
     this.__message =  newMessage;
     this.setupReactionCollector();
   }
-  private get message() {
+  public get message() {
     return this.__message;
   }
 
