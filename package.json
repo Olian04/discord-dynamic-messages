@@ -1,10 +1,9 @@
 {
   "name": "discord-dynamic-messages",
   "version": "0.1.0",
-  "description": "```ts import { Client } from 'discord.js'; import {   DynamicMessage,   OnReaction, } from 'discordjs-dynamic-messages';",
-  "main": "dist/index.js",
+  "description": "Create auto-updating component-like messages in discord.js with ease.",
+  "main": "src/index.js",
   "scripts": {
-    "build": "rm -rf dist && tsc",
     "demo:start": "ts-node demo/index.ts",
     "lint": "tslint --fix -c ./tslint.json 'src/**/*{.ts,.tsx}'",
     "lint:nofix": "tslint -c ./tslint.json 'src/**/*{.ts,.tsx}'"

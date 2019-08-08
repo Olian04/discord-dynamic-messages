@@ -2,46 +2,37 @@
 
 ```ts
 import { Client } from 'discord.js';
-import {
-  DynamicMessage,
-  OnReaction,
-} from 'discordjs-dynamic-messages';
+import { DynamicMessage, OnReaction } from 'discord-dynamic-message';
 
-class CounterMessage extends DynamicMessage {
+export class CounterMessage extends DynamicMessage {
   private counter;
   constructor(args) {
     super();
-    this.counter = args.initalCounterValue;
+    this.counter = args.initialCounterValue;
   }
 
-  @OnReaction(':thumbsup:', {
-    removedWhenDone: true, // default
-    triggersRender: true, // default
-    includeBots: false, // default
-  })
-  increment(user, channel, reactions) {
+  @OnReaction(':thumbsup:')
+  public increment(user, channel) {
     this.counter += 1;
   }
-  
+
   @OnReaction(':thumbsdown:')
-  decrement(user, channel, reactions) {
+  public decrement(user, channel) {
     this.counter -= 1;
   }
-  
-  render() {
-    return {
-      content: `Counter: ${this.counter}`,
-    };
+
+  public render() {
+    return `Counter: ${this.counter}`;
   }
 }
 
 const client = new Client();
-client.on('ready', async () => {
-  client.on('message', async (message) => {
-    CounterMessage.replyTo(message, {
-      initialCounterValue: 0,
-    });
-  })
-})
+client.on('ready', () => {
+  client.on('message', (message) => {
+    new CounterMessage({
+      initialCounterValue: Number(args[0]),
+    }).replyTo(message);
+  });
+});
 client.login(discord_secret);
 ```

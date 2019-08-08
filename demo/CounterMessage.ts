@@ -5,18 +5,18 @@ import {
 
 export class CounterMessage extends DynamicMessage {
   private counter;
-  constructor(args) {
+  constructor(args: { initialCounterValue: number; }) {
     super();
     this.counter = args.initialCounterValue;
   }
 
   @OnReaction(':thumbsup:')
-  public increment(user, channel) {
+  public increment() {
     this.counter += 1;
   }
 
   @OnReaction(':thumbsdown:')
-  public decrement(user, channel) {
+  public decrement() {
     this.counter -= 1;
   }
 

@@ -56,7 +56,11 @@ export abstract class DynamicMessage {
   }
 
   constructor() {
-    this.metadata = Reflect.getMetadata(PROPERTY_METADATA_KEY, this);
+    this.metadata = Reflect.getMetadata(PROPERTY_METADATA_KEY, this) || initialMetadata();
+  }
+
+  public async sendTo(channel: TextChannel | DMChannel | GroupDMChannel) {
+    this.message = (await channel.send(this.render())) as Message;
   }
 
   public async replyTo(msg: Message) {

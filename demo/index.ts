@@ -16,13 +16,11 @@ client.on('ready', async ()  => {
     const [command, ...args] = message.content.substr(1).split(' ');
     if (command === 'count') {
       new CounterMessage({
-        initialCounterValue: Number(args[0]),
-      }).replyTo(message);
+        initialCounterValue: Number(args[0] || '0'),
+      }).sendTo(message.channel);
     } else if (command === 'echo') {
       new EchoMessage(args.join(' ')).replyTo(message);
     }
-
-
   });
 });
 

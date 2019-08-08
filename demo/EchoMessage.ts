@@ -1,4 +1,4 @@
-import { DynamicMessage, OnReaction } from '../src/index';
+import { DynamicMessage } from '../src/index';
 
 export class EchoMessage extends DynamicMessage {
   constructor(private toEcho: string) {
