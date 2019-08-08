@@ -32,7 +32,6 @@ const updateMetadata = (target, cb: (metadata: IMetadata) => IMetadata) => {
 
 export const OnReaction = (emoji: string) => (target, propertyKey: string, descriptor: PropertyDescriptor) => {
   updateMetadata(target, (allMetadata) => {
-    const handler = target[propertyKey].bind(target);
 
     // Add the reaction handler to the instance meta data
     allMetadata.reactionHandlers[emoji] = propertyKey;
