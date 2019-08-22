@@ -41,6 +41,8 @@ client.on('ready', () => {
 client.login(discord_secret);
 ```
 
+![](assets/demo.png)
+
 ## Install
 
 1. Install library: [`npm i discord-dynamic-messages`](https://www.npmjs.com/package/discord-dynamic-messages).
