@@ -35,7 +35,7 @@ client.on('ready', () => {
   client.on('message', (message) => {
     new CounterMessage({
       initialCounterValue: 0,
-    }).replyTo(message);
+    }).sendTo(message.channel);
   });
 });
 client.login(discord_secret);
