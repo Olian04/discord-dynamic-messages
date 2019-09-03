@@ -2,12 +2,6 @@ import { DMChannel, GroupDMChannel, Message, MessageReaction, RichEmbed, TextCha
 import emojiUtils from 'node-emoji';
 import 'reflect-metadata';
 
-async function awaitAllInOrder(array: Array<Promise<any>>) {
-  for (const promise of array) {
-    await promise;
-  }
-}
-
 interface IReactionConfig {
   hidden: boolean;
   triggerRender: boolean;
