@@ -118,9 +118,6 @@ export abstract class DynamicMessage {
 
   private setupReactionCollector = async () => {
     await Object.keys(this.metadata.reactionHandlers)
-      .map((arg) => {
-        return arg;
-      })
       .filter((emojiCode) => !this.metadata.reactionHandlers[emojiCode].config.hidden)
       .sort((a, b) =>
         this.metadata.reactionHandlers[a].registrationOrder - this.metadata.reactionHandlers[b].registrationOrder,
