@@ -1,8 +1,12 @@
 # discord-dynamic-messages
 
+__What exactly is the usage of this lib?__
+
+Basically it helps with creating messages that dynamically change their contents based on how ppl react on it. Aka, the message content acts as a screen, and the reactions act as input buttons.
+
 ```ts
 import { Client } from 'discord.js';
-import { DynamicMessage, OnReaction } from 'discord-dynamic-message';
+import { DynamicMessage, OnReaction } from 'discord-dynamic-messages';
 
 export class CounterMessage extends DynamicMessage {
   private counter;
@@ -31,11 +35,13 @@ client.on('ready', () => {
   client.on('message', (message) => {
     new CounterMessage({
       initialCounterValue: 0,
-    }).replyTo(message);
+    }).sendTo(message.channel);
   });
 });
 client.login(discord_secret);
 ```
+
+![](assets/demo.png)
 
 ## Install
 
