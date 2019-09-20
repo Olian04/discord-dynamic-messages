@@ -156,7 +156,7 @@ interface IReactionConfig {
 ```
 
 ```ts
-const Foo = class extends DynamicMessage 
+const Foo = class extends DynamicMessage {
 
   @OnReaction(':thumbsup:')
   public react() {
