@@ -51,6 +51,74 @@ client.login(discord_secret);
 
 _Note: If you are using vscode you might need to set `javascript.implicitProjectConfig.experimentalDecorators` to `true` in the workspace settings._
 
+## Documentation
+
+### DynamicMessage
+
+```ts
+type DynamicMessage = abstract class {
+  abstract public render(): string | RichEmbed;
+}
+```
+
+This is the base class of the library, every dynamic message must extend this class.<br>
+Every class that extends this DynamicMessage must implement a render method.
+The render method is used to determin the contents of the coresponding "discord text message".
+
+#### DynamicMessage#reRender
+
+```ts
+type reRender = () => void
+```
+
+Used to manually trigger a rerender.
+
+#### DynamicMessage#sendTo
+
+```ts
+type reRender = (channel: Discord.Channel) => DynamicMessage
+```
+
+Sends the dynamic message to the given channel.
+
+#### DynamicMessage#replyTo
+
+```ts
+type reRender = (message: Discord.Message) => DynamicMessage
+```
+
+Sends the dynamic message as a reply to the given message.
+
+
+### OnReaction
+
+```ts
+type OnReaction = (emoji: string, config?:IReactionConfig) => Decorator<(user: Discord.User, channel: Discord.Channel, reaction: Discord.Reaction) => void>
+```
+
+OnReaction is a decorator that tells the dynamic message what functions to call in response to what emoji when a reaction is made on the coresponding "discord text message".
+
+```ts
+interface IReactionConfig {
+
+  // (default: false) when false the bot will react with the given emoji to show the users what emoji the message will to react to.
+  hidden?: boolean;
+  
+  // (default: true) when true the bot will call the render method of the dynamic message after the reaction callback have executed.
+  triggerRender?: boolean;
+  
+  // (default: true when true the bot will remove user reactions after the callback have executed.
+  removeWhenDone?: boolean;
+  
+  // (default: true) should reactions from bots trigger this callback?
+  ignoreBots?: boolean;
+  
+  // (default: false) should reactions from humans trigger this callback?
+  ignoreHumans?: boolean;
+ }
+```
+
+
 ## Development
 
 1. Grab your discord-bot secret from the [discord developer portal](https://discordapp.com/developers/applications).
