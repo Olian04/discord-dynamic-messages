@@ -73,6 +73,19 @@ type reRender = () => void
 
 Used to manually trigger a rerender.
 
+```ts
+class extends DynamicMessage {
+  public doStuff() {
+    // do some stuff
+    this.reRender()
+  }
+  
+  public render() {
+    return 'stuff';
+  }
+}
+```
+
 #### DynamicMessage#sendTo
 
 ```ts
@@ -80,6 +93,19 @@ type reRender = (channel: Discord.Channel) => DynamicMessage
 ```
 
 Sends the dynamic message to the given channel.
+
+
+```ts
+const Foo = class extends DynamicMessage {
+  public render() {
+    return 'stuff';
+  }
+}
+
+client.on('message', (msg) => {
+  new Foo().sendTo(msg.channel)
+})
+```
 
 #### DynamicMessage#replyTo
 
@@ -89,6 +115,17 @@ type reRender = (message: Discord.Message) => DynamicMessage
 
 Sends the dynamic message as a reply to the given message.
 
+```ts
+const Foo = class extends DynamicMessage {
+  public render() {
+    return 'stuff';
+  }
+}
+
+client.on('message', (msg) => {
+  new Foo().replyTo(msg)
+})
+```
 
 ### OnReaction
 
@@ -116,6 +153,20 @@ interface IReactionConfig {
   // (default: false) should reactions from humans trigger this callback?
   ignoreHumans?: boolean;
  }
+```
+
+```ts
+const Foo = class extends DynamicMessage 
+
+  @OnReaction(':thumbsup:')
+  public react() {
+    console.log('WOW!');
+  }
+
+  public render() {
+    return 'stuff';
+  }
+}
 ```
 
 
