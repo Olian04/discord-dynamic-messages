@@ -62,7 +62,7 @@ type DynamicMessage = abstract class {
 ```
 
 This is the base class of the library, every dynamic message must extend this class.<br>
-Every class that extends this DynamicMessage must implement a render method.
+Every class that extends this DynamicMessage must implement a render method.<br>
 The render method is used to determin the contents of the coresponding "discord text message".
 
 #### DynamicMessage#reRender
