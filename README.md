@@ -144,7 +144,7 @@ interface IReactionConfig {
   // (default: true) when true the bot will call the render method of the dynamic message after the reaction callback have executed.
   triggerRender?: boolean;
   
-  // (default: true when true the bot will remove user reactions after the callback have executed.
+  // (default: true) when true the bot will remove user reactions after the callback have executed.
   removeWhenDone?: boolean;
   
   // (default: true) should reactions from bots trigger this callback?
