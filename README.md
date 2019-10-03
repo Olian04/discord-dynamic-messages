@@ -89,7 +89,7 @@ class extends DynamicMessage {
 #### DynamicMessage#sendTo
 
 ```ts
-type reRender = (channel: Discord.Channel) => DynamicMessage
+type sendTo = (channel: Discord.Channel) => DynamicMessage
 ```
 
 Sends the dynamic message to the given channel.
@@ -110,7 +110,7 @@ client.on('message', (msg) => {
 #### DynamicMessage#replyTo
 
 ```ts
-type reRender = (message: Discord.Message) => DynamicMessage
+type replyTo = (message: Discord.Message) => DynamicMessage
 ```
 
 Sends the dynamic message as a reply to the given message.
