@@ -45,6 +45,8 @@ client.login(discord_secret);
 
 ## Install
 
+__Note:__ This library depends on typescript decorators, and will therefore not work properly unless used in a correctly configured typescript project. 
+
 1. Install library: [`npm i discord-dynamic-messages`](https://www.npmjs.com/package/discord-dynamic-messages).
 2. Enable `experimentalDecorators` and `emitDecoratorMetadata` in `tsconfig.json`.
 3. Try the example above.
