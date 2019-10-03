@@ -138,7 +138,7 @@ OnReaction is a decorator that tells the dynamic message what functions to call 
 ```ts
 interface IReactionConfig {
 
-  // (default: false) when false the bot will react with the given emoji to show the users what emoji the message will to react to.
+  // (default: false) when false the bot will react with the given emoji to show the users what emoji the message is prepared to react to.
   hidden?: boolean;
   
   // (default: true) when true the bot will call the render method of the dynamic message after the reaction callback have executed.
