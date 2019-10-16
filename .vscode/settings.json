@@ -1,3 +1,6 @@
 {
-  "javascript.implicitProjectConfig.experimentalDecorators": true
+  "javascript.implicitProjectConfig.experimentalDecorators": true,
+  "editor.codeActionsOnSave": {
+      "source.fixAll.tslint": true
+  }
 }
