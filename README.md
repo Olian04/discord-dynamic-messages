@@ -59,13 +59,19 @@ _Note: If you are using vscode you might need to set `javascript.implicitProject
 
 ```ts
 type DynamicMessage = abstract class {
+  constructor(config: IDynamicMessageConfig);
   abstract public render(): string | RichEmbed;
+}
+interface IDynamicMessageConfig {
+  volatile: boolean;
+  onError?: (error: Error) => void;
 }
 ```
 
 This is the base class of the library, every dynamic message must extend this class.<br>
 Every class that extends this DynamicMessage must implement a render method.<br>
-The render method is used to determin the contents of the coresponding "discord text message".
+The volatile config option determines wether or not errors should be thrown, or passed to the error handler.<br>
+The render method is used to determine the contents of the corresponding "discord text message".
 
 #### DynamicMessage#reRender
 
@@ -95,7 +101,6 @@ type sendTo = (channel: Discord.Channel) => DynamicMessage
 ```
 
 Sends the dynamic message to the given channel.
-
 
 ```ts
 const Foo = class extends DynamicMessage {
@@ -135,7 +140,7 @@ client.on('message', (msg) => {
 type OnReaction = (emoji: string, config?:IReactionConfig) => Decorator<(user: Discord.User, channel: Discord.Channel, reaction: Discord.Reaction) => void>
 ```
 
-OnReaction is a decorator that tells the dynamic message what functions to call in response to what emoji when a reaction is made on the coresponding "discord text message".
+OnReaction is a decorator that tells the dynamic message what functions to call in response to what emoji when a reaction is made on the corresponding "discord text message".
 
 ```ts
 interface IReactionConfig {

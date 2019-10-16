@@ -1,82 +1,32 @@
-import { DMChannel, GroupDMChannel, Message, MessageReaction, RichEmbed, TextChannel, User } from 'discord.js';
+import {
+  DMChannel,
+  GroupDMChannel,
+  Message,
+  MessageReaction,
+  RichEmbed, TextChannel,
+  User,
+} from 'discord.js';
 import emojiUtils from 'node-emoji';
-import 'reflect-metadata';
-
-interface IReactionConfig {
-  hidden: boolean;
-  triggerRender: boolean;
-  removeWhenDone: boolean;
-  ignoreBots: boolean;
-  ignoreHumans: boolean;
-}
-
-interface IMetadata {
-  numberOfRegisteredReactionHandlers: number;
-  reactionHandlers: {
-    [emoji: string]: {
-      registrationOrder: number;
-      handlerKey: string;
-      config: IReactionConfig;
-    };
-  };
-}
-
-const PROPERTY_METADATA_KEY = Symbol('propertyMetadata');
-const initialMetadata = (): IMetadata => ({
-  reactionHandlers: {},
-  numberOfRegisteredReactionHandlers: 0,
-});
-const defaultReactionConfig = (): IReactionConfig => ({
-  hidden: false,
-  triggerRender: true,
-  removeWhenDone: true,
-  ignoreBots: true,
-  ignoreHumans: false,
-});
-
-const updateMetadata = (target, cb: (metadata: IMetadata) => IMetadata) => {
-  // Pull the existing metadata or create an empty object
-  let allMetadata: IMetadata = (
-    Reflect.getMetadata(PROPERTY_METADATA_KEY, target)
-    || initialMetadata()
-  );
-
-  allMetadata = cb(allMetadata);
-
-  // Update the metadata
-  Reflect.defineMetadata(
-    PROPERTY_METADATA_KEY,
-    allMetadata,
-    target,
-  );
-};
-
-export const OnReaction = (emoji: string, config: Partial<IReactionConfig> = {}) =>
-  (target, propertyKey: string, descriptor: PropertyDescriptor) => {
-  updateMetadata(target, (allMetadata) => {
-
-    // Add the reaction handler to the instance meta data
-    allMetadata.reactionHandlers[emoji] = {
-      registrationOrder: allMetadata.numberOfRegisteredReactionHandlers,
-      handlerKey: propertyKey,
-      config: {...defaultReactionConfig(), ...config},
-    };
-    allMetadata.numberOfRegisteredReactionHandlers += 1;
-
-    return allMetadata;
-  });
-};
+import { IDynamicMessageConfig, IMetadata } from './interfaces';
+import { getMetadata } from './manageMetadata';
+import { checkPermissions } from './util/checkPermission';
+import { throwError } from './util/throwError';
 
 export abstract class DynamicMessage {
   private isResponse: boolean = false;
   private responseTo: User = null;
   private metadata: IMetadata;
+  private config: IDynamicMessageConfig;
   private __message: Message = null;
 
   public set message(newMessage: Message) {
     if (this.__message !== null) {
-      throw new Error(`DynamicMessage#message may not be reassigned once assigned!`);
+      // We're currently not cleaning up any side effects from "setupReactionCollector" so we cant reassign the message
+      throwError(this.config, `DynamicMessage#message may not be reassigned once assigned!`);
     }
+
+    checkPermissions(this.config, newMessage.guild);
+
     this.__message =  newMessage;
     this.setupReactionCollector();
   }
@@ -84,8 +34,11 @@ export abstract class DynamicMessage {
     return this.__message;
   }
 
-  constructor() {
-    this.metadata = Reflect.getMetadata(PROPERTY_METADATA_KEY, this) || initialMetadata();
+  constructor(config: IDynamicMessageConfig = { volatile: true }) {
+    this.config = config;
+
+    // Pull in metadata config defined in decorators
+    this.metadata = getMetadata(this);
   }
 
   public async sendTo(channel: TextChannel | DMChannel | GroupDMChannel) {
