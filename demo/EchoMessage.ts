@@ -1,4 +1,4 @@
-import { DynamicMessage } from '../src/index';
+import { DynamicMessage } from '../src/api';
 
 export class EchoMessage extends DynamicMessage {
   constructor(private toEcho: string) {

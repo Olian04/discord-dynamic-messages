@@ -1,7 +1,7 @@
 import {
   DynamicMessage,
   OnReaction,
-} from '../src/index';
+} from '../src/api';
 
 export class CounterMessage extends DynamicMessage {
   private counter;

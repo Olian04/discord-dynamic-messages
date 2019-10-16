@@ -2,7 +2,7 @@ import { emoji } from 'node-emoji';
 import {
   DynamicMessage,
   OnReaction,
-} from '../src/index';
+} from '../src/api';
 
 export class AccumulatorMessage extends DynamicMessage {
   private accumulator: string = '';
