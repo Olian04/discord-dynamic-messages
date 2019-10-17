@@ -8,7 +8,7 @@ import {
 } from 'discord.js';
 import emojiUtils from 'node-emoji';
 import { IDynamicMessageConfig, IMetadata } from './interfaces';
-import { getMetadata } from './manageMetadata';
+import { metadata } from './manageMetadata';
 import { checkPermissions } from './util/checkPermission';
 import { throwError } from './util/throwError';
 
@@ -38,7 +38,7 @@ export abstract class DynamicMessage {
     this.config = config;
 
     // Pull in metadata config defined in decorators
-    this.metadata = getMetadata(this);
+    this.metadata = metadata.get(this);
   }
 
   public async sendTo(channel: TextChannel | DMChannel | GroupDMChannel) {
