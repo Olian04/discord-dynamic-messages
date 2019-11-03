@@ -166,7 +166,7 @@ interface IReactionConfig {
 const Foo = class extends DynamicMessage {
 
   @OnReaction(':thumbsup:')
-  public react() {
+  public react(user, channel, reaction) {
     console.log('WOW!');
   }
 
