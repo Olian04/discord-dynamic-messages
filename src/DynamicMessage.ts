@@ -13,12 +13,6 @@ import { metadata } from './manageMetadata';
 import { checkPermissions } from './util/checkPermission';
 
 export abstract class DynamicMessage {
-  private isResponse: boolean = false;
-  private responseTo: User = null;
-  private metadata: IMetadata;
-  private config: IDynamicMessageConfig;
-  private reactionCollector: ReactionCollector;
-  private __message: Message = null;
 
   public set message(newMessage: Message) {
     if (this.__message !== null) {
@@ -37,6 +31,34 @@ export abstract class DynamicMessage {
   public get message() {
     return this.__message;
   }
+
+  private isResponse: boolean = false;
+  private responseTo: User = null;
+  private metadata: IMetadata;
+  private config: IDynamicMessageConfig;
+  private reactionCollector: ReactionCollector;
+  private __message: Message = null;
+
+  /*
+  Apparently discord has some problems with certain emoji
+  ex: :one: needs to be sent as in escaped unicode format: \u0030\u20E3
+
+  See:
+    - https://stackoverflow.com/questions/49225971/discord-js-message-react-fails-when-adding-specific-unicode-emotes
+    - https://github.com/discordjs/discord.js/issues/2287
+  */
+  private emojiFixes = {
+    ':zero:': '\u0030\u20E3',
+    ':one:': '\u0031\u20E3',
+    ':two:': '\u0032\u20E3',
+    ':three:': '\u0033\u20E3',
+    ':four:': '\u0034\u20E3',
+    ':five:': '\u0035\u20E3',
+    ':six:': '\u0036\u20E3',
+    ':seven:': '\u0037\u20E3',
+    ':eight:': '\u0038\u20E3',
+    ':nine:': '\u0039\u20E3',
+  };
 
   constructor(config: IDynamicMessageConfig = { volatile: true }) {
     this.config = config;
@@ -89,7 +111,9 @@ export abstract class DynamicMessage {
       .sort((a, b) =>
         this.metadata.reactionHandlers[a].registrationOrder - this.metadata.reactionHandlers[b].registrationOrder,
       )
-      .map((emojiCode) => emojiUtils.get(emojiCode))
+      .map((emojiCode) => emojiCode in this.emojiFixes ?
+        this.emojiFixes[emojiCode] : emojiUtils.get(emojiCode),
+      )
       .reduce((promise, emoji) => promise.then(() => this.message.react(emoji)), Promise.resolve());
 
     this.reactionCollector = this.message.createReactionCollector(

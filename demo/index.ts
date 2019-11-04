@@ -4,6 +4,7 @@ import { AccumulatorMessage } from './AccumulatorMessage';
 import { AttachMessage } from './AttachMessage';
 import { CounterMessage } from './CounterMessage';
 import { EchoMessage } from './EchoMessage';
+import { NumericEmojiMessage } from './NumericEmojiMessage';
 
 // tslint:disable-next-line no-var-requires
 const secrets = require(path.resolve(__dirname, '..', 'secrets.json'));
@@ -28,6 +29,8 @@ client.on('ready', async ()  => {
       new EchoMessage(args.join(' ')).replyTo(message);
     } else if (command === 'acc') {
       new AccumulatorMessage().sendTo(message.channel);
+    } else if (command === 'num') {
+      new NumericEmojiMessage().sendTo(message.channel);
     } else if (command === 'attach') {
       const dummyMsg = await message.channel.send('dummy message') as Message;
       attachMessage.attachTo(dummyMsg);
