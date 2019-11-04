@@ -53,6 +53,15 @@ export abstract class DynamicMessage {
     return this;
   }
 
+  public attachTo(message: Message, responseTo?: User) {
+    this.message = message;
+    if (responseTo) {
+      this.isResponse = true;
+      this.responseTo = responseTo;
+    }
+    return this;
+  }
+
   public reRender() {
     if (this.isResponse) {
       this.message.edit(`${this.responseTo} ${this.render()}`);

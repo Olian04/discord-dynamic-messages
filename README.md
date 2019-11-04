@@ -58,7 +58,7 @@ _Note: If you are using vscode you might need to set `javascript.implicitProject
 ### DynamicMessage
 
 ```ts
-type DynamicMessage = abstract class {
+abstract class DynamicMessage {
   constructor(config: IDynamicMessageConfig);
   abstract public render(): string | RichEmbed;
 }
@@ -82,7 +82,7 @@ type reRender = () => void
 Used to manually trigger a rerender.
 
 ```ts
-class extends DynamicMessage {
+class Foo extends DynamicMessage {
   public doStuff() {
     // do some stuff
     this.reRender()
@@ -103,7 +103,7 @@ type sendTo = (channel: Discord.Channel) => DynamicMessage
 Sends the dynamic message to the given channel.
 
 ```ts
-const Foo = class extends DynamicMessage {
+class Foo extends DynamicMessage {
   public render() {
     return 'stuff';
   }
@@ -123,7 +123,7 @@ type replyTo = (message: Discord.Message) => DynamicMessage
 Sends the dynamic message as a reply to the given message.
 
 ```ts
-const Foo = class extends DynamicMessage {
+class Foo extends DynamicMessage {
   public render() {
     return 'stuff';
   }
@@ -131,6 +131,32 @@ const Foo = class extends DynamicMessage {
 
 client.on('message', (msg) => {
   new Foo().replyTo(msg)
+})
+```
+
+#### DynamicMessage#attachTo
+
+```ts
+type attachTo = (message: Discord.Message, responseTo?: Discord.User) => DynamicMessage
+```
+
+Attaches an existing message to the DynamicMessage instance, then call render on the instance and overwrite the content of the existing message.  
+
+```ts
+class Foo extends DynamicMessage {
+  public render() {
+    return 'stuff';
+  }
+}
+
+client.on('message', (msg) => {
+  const reply = msg.reply('tmp');
+
+  // Attach in the same way as DynamicMessage#sendTo
+  new Foo().attachTo(reply);
+
+  // Attach in the same way as DynamicMessage#replyTo
+  new Foo().attachTo(reply, msg.author);
 })
 ```
 
@@ -163,7 +189,7 @@ interface IReactionConfig {
 ```
 
 ```ts
-const Foo = class extends DynamicMessage {
+class Foo extends DynamicMessage {
 
   @OnReaction(':thumbsup:')
   public react() {
@@ -175,7 +201,6 @@ const Foo = class extends DynamicMessage {
   }
 }
 ```
-
 
 ## Development
 
