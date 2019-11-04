@@ -14,6 +14,11 @@ export const checkPermissions = (config: IDynamicMessageConfig, guild: Guild)  =
     Permissions.FLAGS.READ_MESSAGES,
     Permissions.FLAGS.READ_MESSAGE_HISTORY,
   ].forEach((permission: PermissionResolvable) => {
+    if (guild === null) {
+      // In a DM our groupDM.
+      // TODO: Figure out what permissions we have in a DM channel.
+      return;
+    }
     const gotPermissions = guild.me.hasPermission(permission);
     if (!gotPermissions) {
       throwError(config, `DynamicMessage - Missing permission ${permission.toString()}`);
