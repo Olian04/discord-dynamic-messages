@@ -3,26 +3,30 @@ import {
   GroupDMChannel,
   Message,
   MessageReaction,
-  RichEmbed, TextChannel,
+  ReactionCollector, RichEmbed,
+  TextChannel,
   User,
 } from 'discord.js';
 import emojiUtils from 'node-emoji';
 import { IDynamicMessageConfig, IMetadata } from './interfaces';
 import { metadata } from './manageMetadata';
 import { checkPermissions } from './util/checkPermission';
-import { throwError } from './util/throwError';
 
 export abstract class DynamicMessage {
   private isResponse: boolean = false;
   private responseTo: User = null;
   private metadata: IMetadata;
   private config: IDynamicMessageConfig;
+  private reactionCollector: ReactionCollector;
   private __message: Message = null;
 
   public set message(newMessage: Message) {
     if (this.__message !== null) {
-      // We're currently not cleaning up any side effects from "setupReactionCollector" so we cant reassign the message
-      throwError(this.config, `DynamicMessage#message may not be reassigned once assigned!`);
+      this.tearDownReactionCollector();
+    }
+    if (newMessage === null) {
+      this.__message = null;
+      return;
     }
 
     checkPermissions(this.config, newMessage.guild);
@@ -59,6 +63,7 @@ export abstract class DynamicMessage {
       this.isResponse = true;
       this.responseTo = responseTo;
     }
+    this.reRender();
     return this;
   }
 
@@ -72,6 +77,12 @@ export abstract class DynamicMessage {
 
   protected abstract render(): string | RichEmbed;
 
+  private async tearDownReactionCollector() {
+    await this.message.clearReactions();
+    this.reactionCollector.removeAllListeners()
+      .cleanup();
+  }
+
   private setupReactionCollector = async () => {
     await Object.keys(this.metadata.reactionHandlers)
       .filter((emojiCode) => !this.metadata.reactionHandlers[emojiCode].config.hidden)
@@ -81,11 +92,11 @@ export abstract class DynamicMessage {
       .map((emojiCode) => emojiUtils.get(emojiCode))
       .reduce((promise, emoji) => promise.then(() => this.message.react(emoji)), Promise.resolve());
 
-    const collector = this.message.createReactionCollector(
+    this.reactionCollector = this.message.createReactionCollector(
       (reaction: MessageReaction) => emojiUtils.unemojify(reaction.emoji.name) in this.metadata.reactionHandlers,
     );
 
-    collector.on('collect', (reaction: MessageReaction) => {
+    this.reactionCollector.on('collect', (reaction: MessageReaction) => {
       const emojiCode = emojiUtils.unemojify(reaction.emoji.name);
       reaction.users
         .filter((user) => {
