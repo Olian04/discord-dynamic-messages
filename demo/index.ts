@@ -6,6 +6,7 @@ import { AttachMessage } from './AttachMessage';
 import { CounterMessage } from './CounterMessage';
 import { EchoMessage } from './EchoMessage';
 import { NumericEmojiMessage } from './NumericEmojiMessage';
+import { RichEmbedMessage } from './RichEmbedMessage';
 
 // tslint:disable-next-line no-var-requires
 const secrets = require(path.resolve(__dirname, '..', 'secrets.json'));
@@ -44,6 +45,8 @@ client.on('ready', async ()  => {
           }).attachTo(dummyMsg);
         }, 3000);
       });
+    } else if (command === 'rich') {
+      new RichEmbedMessage().sendTo(message.channel);
     }
   });
 });
