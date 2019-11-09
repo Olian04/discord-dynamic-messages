@@ -12,6 +12,7 @@ import { IDynamicMessageConfig } from './interfaces/IDynamicMessageConfigTame';
 import { IMetadata } from './interfaces/IMetadata';
 import { metadata } from './manageMetadata';
 import { checkPermissions } from './util/checkPermission';
+import { throwError } from './util/throwError';
 
 export abstract class DynamicMessage {
 
@@ -69,22 +70,34 @@ export abstract class DynamicMessage {
   }
 
   public async sendTo(channel: TextChannel | DMChannel | GroupDMChannel) {
-    this.message = (await channel.send(this.render())) as Message;
+    try {
+      this.message = (await channel.send(this.render())) as Message;
+    } catch (err) {
+      throwError(this.config, String(err));
+    }
     return this;
   }
 
   public async replyTo(msg: Message) {
-    this.message = (await msg.reply(this.render())) as Message;
-    this.isResponse = true;
-    this.responseTo = msg.author;
+    try {
+      this.message = (await msg.reply(this.render())) as Message;
+      this.isResponse = true;
+      this.responseTo = msg.author;
+    } catch (err) {
+      throwError(this.config, String(err));
+    }
     return this;
   }
 
   public attachTo(message: Message, responseTo?: User) {
-    this.message = message;
-    if (responseTo) {
-      this.isResponse = true;
-      this.responseTo = responseTo;
+    try {
+      this.message = message;
+      if (responseTo) {
+        this.isResponse = true;
+        this.responseTo = responseTo;
+      }
+    } catch (err) {
+      throwError(this.config, String(err));
     }
     this.reRender();
     return this;
@@ -92,82 +105,95 @@ export abstract class DynamicMessage {
 
   public reRender() {
     if (this.isResponse) {
-      this.message.edit(`${this.responseTo} ${this.render()}`);
+      this.message.edit(`${this.responseTo} ${this.render()}`)
+        .catch((err) => throwError(this.config, String(err)));
     } else {
-      this.message.edit(this.render());
+      this.message.edit(this.render())
+        .catch((err) => throwError(this.config, String(err)));
     }
   }
 
   protected abstract render(): string | RichEmbed;
 
   private async tearDownReactionCollector() {
-    await this.message.clearReactions();
-    this.reactionCollector.removeAllListeners()
-      .cleanup();
+    try {
+      await this.message.clearReactions();
+      this.reactionCollector.removeAllListeners()
+        .cleanup();
+    } catch (err) {
+      throwError(this.config, String(err));
+    }
   }
 
   private setupReactionCollector = async () => {
+    try {
+      // Setup known "none-hidden" reactions on the message
+      await Object.keys(this.metadata.reactionHandlers)
+        .filter((emojiCode) => !this.metadata.reactionHandlers[emojiCode].config.hidden)
+        .sort((a, b) =>
+          this.metadata.reactionHandlers[a].registrationOrder - this.metadata.reactionHandlers[b].registrationOrder,
+        )
+        .map((emojiCode) => emojiCode in this.emojiFixes ?
+          this.emojiFixes[emojiCode] : emojiUtils.get(emojiCode),
+        )
+        .reduce((promise, emoji) => promise.then(() => this.message.react(emoji)), Promise.resolve());
 
-    // Setup known "none-hidden" reactions on the message
-    await Object.keys(this.metadata.reactionHandlers)
-      .filter((emojiCode) => !this.metadata.reactionHandlers[emojiCode].config.hidden)
-      .sort((a, b) =>
-        this.metadata.reactionHandlers[a].registrationOrder - this.metadata.reactionHandlers[b].registrationOrder,
-      )
-      .map((emojiCode) => emojiCode in this.emojiFixes ?
-        this.emojiFixes[emojiCode] : emojiUtils.get(emojiCode),
-      )
-      .reduce((promise, emoji) => promise.then(() => this.message.react(emoji)), Promise.resolve());
+      // Setup reaction collector for known emoji
+      this.reactionCollector = this.message.createReactionCollector(
+        (reaction: MessageReaction) => emojiUtils.unemojify(reaction.emoji.name) in this.metadata.reactionHandlers,
+      );
 
-    // Setup reaction collector for known emoji
-    this.reactionCollector = this.message.createReactionCollector(
-      (reaction: MessageReaction) => emojiUtils.unemojify(reaction.emoji.name) in this.metadata.reactionHandlers,
-    );
+      // Setup reaction handler for new reactions
+      this.reactionCollector.on('collect', (reaction) => this.handleReaction(reaction, false));
 
-    // Setup reaction handler for new reactions
-    this.reactionCollector.on('collect', (reaction) => this.handleReaction(reaction, false));
-
-    // Retroactively handle reaction already on the message
-    this.message.reactions.forEach((reaction) => this.handleReaction(reaction, true));
+      // Retroactively handle reaction already on the message
+      this.message.reactions.forEach((reaction) => this.handleReaction(reaction, true));
+    } catch (err) {
+      throwError(this.config, String(err));
+    }
   }
 
   private async handleReaction(reaction: MessageReaction, isRetroactive: boolean) {
-    const emojiCode = emojiUtils.unemojify(reaction.emoji.name);
-    const {
-      handlerKey,
-      config: {
-        removeWhenDone,
-        ignoreBots,
-        ignoreHumans,
-        doRetroactiveCallback,
-        triggerRender,
-      },
-    } = this.metadata.reactionHandlers[emojiCode];
+    try {
+      const emojiCode = emojiUtils.unemojify(reaction.emoji.name);
+      const {
+        handlerKey,
+        config: {
+          removeWhenDone,
+          ignoreBots,
+          ignoreHumans,
+          doRetroactiveCallback,
+          triggerRender,
+        },
+      } = this.metadata.reactionHandlers[emojiCode];
 
-    if (isRetroactive && !doRetroactiveCallback) {
-      // No retroactive callback should be applied
-      return;
-    }
+      if (isRetroactive && !doRetroactiveCallback) {
+        // No retroactive callback should be applied
+        return;
+      }
 
-    // fetchUsers is needed for retroactive callback application
-    const users = await reaction.fetchUsers();
-    users.filter((user) => {
-        if (user.bot) {
-          return !ignoreBots;
-        } else {
-          return !ignoreHumans;
-        }
-      })
-      .forEach((user) => {
-        this[handlerKey](user, this.message.channel, reaction);
+      // fetchUsers is needed for retroactive callback application
+      const users = await reaction.fetchUsers();
+      users.filter((user) => {
+          if (user.bot) {
+            return !ignoreBots;
+          } else {
+            return !ignoreHumans;
+          }
+        })
+        .forEach((user) => {
+          this[handlerKey](user, this.message.channel, reaction);
 
-        if (removeWhenDone) {
-          reaction.remove(user);
-        }
-      });
+          if (removeWhenDone) {
+            reaction.remove(user);
+          }
+        });
 
-    if (triggerRender) {
-      this.reRender();
+      if (triggerRender) {
+        this.reRender();
+      }
+    } catch (err) {
+      throwError(this.config, String(err));
     }
   }
 }
