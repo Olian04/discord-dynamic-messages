@@ -21,15 +21,15 @@
   },
   "homepage": "https://github.com/Olian04/discordjs-dynamic-messages#readme",
   "dependencies": {
-    "@types/node": "^12.7.1",
+    "@types/node": "^12.12.7",
     "@types/node-emoji": "^1.8.1",
     "discord.js": "^11.5.1",
     "node-emoji": "^1.10.0",
     "ts-metadata-handler": "^1.1.0",
-    "typescript": "^3.5.3"
+    "typescript": "^3.7.2"
   },
   "devDependencies": {
-    "ts-node": "^8.3.0",
-    "tslint": "^5.18.0"
+    "ts-node": "^8.4.1",
+    "tslint": "^5.20.1"
   }
 }
