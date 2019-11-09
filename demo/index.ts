@@ -1,4 +1,5 @@
 import { Client, Message } from 'discord.js';
+import { emoji } from 'node-emoji';
 import * as path from 'path';
 import { AccumulatorMessage } from './AccumulatorMessage';
 import { AttachMessage } from './AttachMessage';
@@ -34,8 +35,16 @@ client.on('ready', async ()  => {
     } else if (command === 'attach') {
       const dummyMsg = await message.channel.send('dummy message') as Message;
       attachMessage.attachTo(dummyMsg);
+    } else if (command === 'retro') {
+      const dummyMsg = await message.channel.send('taken over in 3 seconds') as Message;
+      dummyMsg.react(emoji.thumbsup).then(() => {
+        setTimeout(() => {
+          new CounterMessage({
+            initialCounterValue: 0,
+          }).attachTo(dummyMsg);
+        }, 3000);
+      });
     }
-
   });
 });
 

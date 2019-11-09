@@ -1,4 +1,4 @@
-import { IDynamicMessageConfig } from '../interfaces';
+import { IDynamicMessageConfig } from '../interfaces/IDynamicMessageConfigTame';
 
 export const throwError = (config: IDynamicMessageConfig, msg: string) => {
   const err = new Error(msg);

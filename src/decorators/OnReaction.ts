@@ -1,4 +1,4 @@
-import { IReactionConfig } from '../interfaces';
+import { IReactionConfig } from '../interfaces/IReactionConfig';
 import { metadata } from '../manageMetadata';
 
 const defaultReactionConfig = (): IReactionConfig => ({
@@ -7,6 +7,7 @@ const defaultReactionConfig = (): IReactionConfig => ({
   removeWhenDone: true,
   ignoreBots: true,
   ignoreHumans: false,
+  doRetroactiveCallback: true,
 });
 
 export const OnReaction = (emoji: string, config: Partial<IReactionConfig> = {}) => (

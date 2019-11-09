@@ -8,7 +8,8 @@ import {
   User,
 } from 'discord.js';
 import emojiUtils from 'node-emoji';
-import { IDynamicMessageConfig, IMetadata } from './interfaces';
+import { IDynamicMessageConfig } from './interfaces/IDynamicMessageConfigTame';
+import { IMetadata } from './interfaces/IMetadata';
 import { metadata } from './manageMetadata';
 import { checkPermissions } from './util/checkPermission';
 
@@ -41,7 +42,7 @@ export abstract class DynamicMessage {
 
   /*
   Apparently discord has some problems with certain emoji
-  ex: :one: needs to be sent as in escaped unicode format: \u0030\u20E3
+  ex: :one: needs to be sent in and escaped unicode format: \u0030\u20E3
 
   See:
     - https://stackoverflow.com/questions/49225971/discord-js-message-react-fails-when-adding-specific-unicode-emotes
@@ -106,6 +107,8 @@ export abstract class DynamicMessage {
   }
 
   private setupReactionCollector = async () => {
+
+    // Setup known "none-hidden" reactions on the message
     await Object.keys(this.metadata.reactionHandlers)
       .filter((emojiCode) => !this.metadata.reactionHandlers[emojiCode].config.hidden)
       .sort((a, b) =>
@@ -116,33 +119,54 @@ export abstract class DynamicMessage {
       )
       .reduce((promise, emoji) => promise.then(() => this.message.react(emoji)), Promise.resolve());
 
+    // Setup reaction collector for known emoji
     this.reactionCollector = this.message.createReactionCollector(
       (reaction: MessageReaction) => emojiUtils.unemojify(reaction.emoji.name) in this.metadata.reactionHandlers,
     );
 
-    this.reactionCollector.on('collect', (reaction: MessageReaction) => {
-      const emojiCode = emojiUtils.unemojify(reaction.emoji.name);
-      reaction.users
-        .filter((user) => {
-          const { ignoreBots, ignoreHumans } = this.metadata.reactionHandlers[emojiCode].config;
-          if (user.bot) {
-            return !ignoreBots;
-          } else {
-            return !ignoreHumans;
-          }
-        })
-        .forEach((user) => {
-          const { handlerKey, config: { removeWhenDone } } = this.metadata.reactionHandlers[emojiCode];
-          this[handlerKey](user, this.message.channel, reaction);
+    // Setup reaction handler for new reactions
+    this.reactionCollector.on('collect', (reaction) => this.handleReaction(reaction, false));
 
-          if (removeWhenDone) {
-            reaction.remove(user);
-          }
-        });
+    // Retroactively handle reaction already on the message
+    this.message.reactions.forEach((reaction) => this.handleReaction(reaction, true));
+  }
 
-      if (this.metadata.reactionHandlers[emojiCode].config.triggerRender) {
-        this.reRender();
-      }
-    });
+  private handleReaction(reaction: MessageReaction, isRetroactive: boolean) {
+    const emojiCode = emojiUtils.unemojify(reaction.emoji.name);
+    const {
+      handlerKey,
+      config: {
+        removeWhenDone,
+        ignoreBots,
+        ignoreHumans,
+        doRetroactiveCallback,
+        triggerRender,
+      },
+    } = this.metadata.reactionHandlers[emojiCode];
+
+    if (isRetroactive && !doRetroactiveCallback) {
+      // No retroactive callback should be applied
+      return;
+    }
+
+    reaction.users
+      .filter((user) => {
+        if (user.bot) {
+          return !ignoreBots;
+        } else {
+          return !ignoreHumans;
+        }
+      })
+      .forEach((user) => {
+        this[handlerKey](user, this.message.channel, reaction);
+
+        if (removeWhenDone) {
+          reaction.remove(user);
+        }
+      });
+
+    if (triggerRender) {
+      this.reRender();
+    }
   }
 }

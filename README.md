@@ -185,6 +185,9 @@ interface IReactionConfig {
   
   // (default: false) should reactions from humans trigger this callback?
   ignoreHumans?: boolean;
+
+  // (default: true) should reactions made while the bot was offline / not setup trigger this callback
+  doRetroactiveCallback?: boolean;
  }
 ```
 
