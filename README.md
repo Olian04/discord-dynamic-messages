@@ -205,6 +205,10 @@ class Foo extends DynamicMessage {
 }
 ```
 
+## Demos
+
+_See the [/demo](./demo/) folder_
+
 ## Development
 
 1. Grab your discord-bot secret from the [discord developer portal](https://discordapp.com/developers/applications).
