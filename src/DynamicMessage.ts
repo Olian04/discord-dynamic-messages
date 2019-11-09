@@ -131,7 +131,7 @@ export abstract class DynamicMessage {
     this.message.reactions.forEach((reaction) => this.handleReaction(reaction, true));
   }
 
-  private handleReaction(reaction: MessageReaction, isRetroactive: boolean) {
+  private async handleReaction(reaction: MessageReaction, isRetroactive: boolean) {
     const emojiCode = emojiUtils.unemojify(reaction.emoji.name);
     const {
       handlerKey,
@@ -149,8 +149,9 @@ export abstract class DynamicMessage {
       return;
     }
 
-    reaction.users
-      .filter((user) => {
+    // fetchUsers is needed for retroactive callback application
+    const users = await reaction.fetchUsers();
+    users.filter((user) => {
         if (user.bot) {
           return !ignoreBots;
         } else {
