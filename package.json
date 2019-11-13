@@ -8,6 +8,7 @@
     "demo": "ts-node demo/index.ts",
     "lint": "tslint --fix -c ./tslint.json 'src/**/*{.ts,.tsx}'",
     "lint:nofix": "tslint -c ./tslint.json 'src/**/*{.ts,.tsx}'",
+    "test": "ts-node tests/index.ts",
     "prepublishOnly": "npm run build"
   },
   "repository": {
@@ -21,15 +22,21 @@
   },
   "homepage": "https://github.com/Olian04/discordjs-dynamic-messages#readme",
   "dependencies": {
+    "@types/chalk": "^2.2.0",
     "@types/node": "^12.12.7",
     "@types/node-emoji": "^1.8.1",
+    "chalk": "^3.0.0",
     "discord.js": "^11.5.1",
     "node-emoji": "^1.10.0",
     "ts-metadata-handler": "^1.1.0",
     "typescript": "^3.7.2"
   },
   "devDependencies": {
-    "ts-node": "^8.4.1",
+    "@types/chai": "^4.2.5",
+    "@types/mocha": "^5.2.7",
+    "chai": "^4.2.0",
+    "mocha": "^6.2.2",
+    "ts-node": "^8.5.0",
     "tslint": "^5.20.1"
   }
 }
