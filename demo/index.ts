@@ -7,6 +7,7 @@ import { CounterMessage } from './CounterMessage';
 import { EchoMessage } from './EchoMessage';
 import { NumericEmojiMessage } from './NumericEmojiMessage';
 import { RichEmbedMessage } from './RichEmbedMessage';
+import { ToggleMessage } from './ToggleMessage';
 
 // tslint:disable-next-line no-var-requires
 const secrets = require(path.resolve(__dirname, '..', 'secrets.json'));
@@ -33,6 +34,8 @@ client.on('ready', async ()  => {
       new AccumulatorMessage().sendTo(message.channel);
     } else if (command === 'num') {
       new NumericEmojiMessage().sendTo(message.channel);
+    } else if (command === 'toggle') {
+      new ToggleMessage().sendTo(message.channel);
     } else if (command === 'attach') {
       const dummyMsg = await message.channel.send('dummy message') as Message;
       attachMessage.attachTo(dummyMsg);

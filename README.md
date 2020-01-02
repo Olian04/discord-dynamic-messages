@@ -45,7 +45,7 @@ client.login(discord_secret);
 
 ## Install
 
-__Note:__ This library depends on typescript decorators, and will therefore not work properly unless used in a correctly configured typescript project. 
+__Note:__ This library depends on typescript decorators, and will therefore not work properly unless used in a correctly configured typescript project.
 
 1. Install library: [`npm i discord-dynamic-messages`](https://www.npmjs.com/package/discord-dynamic-messages).
 2. Enable `experimentalDecorators` and `emitDecoratorMetadata` in `tsconfig.json`.
@@ -201,6 +201,50 @@ class Foo extends DynamicMessage {
 
   public render() {
     return 'stuff';
+  }
+}
+```
+
+### OnReactionRemoved
+
+```ts
+type OnReactionRemoved = (emoji: string, config?:IReactionConfig) => Decorator<(user: Discord.User, channel: Discord.Channel, reaction: Discord.Reaction) => void>
+```
+
+OnReactionRemoved is a decorator that tells the dynamic message what functions to call in response to what emoji when a reaction removed from the corresponding "discord text message".
+
+```ts
+interface IReactionConfig {
+  
+  // (default: true) when true the bot will call the render method of the dynamic message after the reaction callback have executed.
+  triggerRender?: boolean;
+  
+  // (default: true) should reactions from bots trigger this callback?
+  ignoreBots?: boolean;
+  
+  // (default: false) should reactions from humans trigger this callback?
+  ignoreHumans?: boolean;
+ }
+```
+
+```ts
+class Foo extends DynamicMessage {
+  private toggle: boolean = false;
+
+  @OnReaction(":thumbsup:", {
+    removeWhenDone: false,
+  })
+  public on() {
+    this.toggle = true;
+  }
+
+  @OnReactionRemoved(":thumbsup:")
+  public off() {
+    this.toggle = false;
+  }
+
+  public render() {
+    return '```diff\n' + (this.toggle ? '+ on' : '- off') + '\n```';
   }
 }
 ```

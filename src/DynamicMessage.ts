@@ -1,9 +1,10 @@
 import {
+  Client,
   DMChannel,
   GroupDMChannel,
   Message,
-  MessageReaction,
-  ReactionCollector, RichEmbed,
+  MessageReaction, ReactionCollector,
+  RichEmbed,
   TextChannel,
   User,
 } from 'discord.js';
@@ -64,6 +65,7 @@ export abstract class DynamicMessage {
 
   constructor(config: IDynamicMessageConfig = { volatile: true }) {
     this.config = config;
+    this.handleReactionRemoved = this.handleReactionRemoved.bind(this);
 
     // Pull in metadata config defined in decorators
     this.metadata = metadata.get(this);
@@ -120,6 +122,7 @@ export abstract class DynamicMessage {
       await this.message.clearReactions();
       this.reactionCollector.removeAllListeners()
         .cleanup();
+      this.message.client.off('messageReactionRemove', this.handleReactionRemoved);
     } catch (err) {
       throwError(this.config, String(err));
     }
@@ -143,11 +146,55 @@ export abstract class DynamicMessage {
         (reaction: MessageReaction) => emojiUtils.unemojify(reaction.emoji.name) in this.metadata.reactionHandlers,
       );
 
+      this.message.client.on('messageReactionRemove', this.handleReactionRemoved);
+
       // Setup reaction handler for new reactions
       this.reactionCollector.on('collect', (reaction) => this.handleReaction(reaction, false));
 
       // Retroactively handle reaction already on the message
       this.message.reactions.forEach((reaction) => this.handleReaction(reaction, true));
+    } catch (err) {
+      throwError(this.config, String(err));
+    }
+  }
+
+  private handleReactionRemoved(reaction: MessageReaction, user: User) {
+    try {
+      if (reaction.message.id !== this.message.id) {
+        // Not this message
+        return;
+      }
+
+      const emojiCode = emojiUtils.unemojify(reaction.emoji.name);
+      if (! (emojiCode in this.metadata.reactionRemovedHandlers)) {
+        // No registered handler
+        return;
+      }
+
+      const {
+        handlerKey,
+        config: {
+          ignoreBots,
+          ignoreHumans,
+          triggerRender,
+        },
+      } = this.metadata.reactionRemovedHandlers[emojiCode];
+
+      const filter = (() => {
+        if (user.bot) {
+          return !ignoreBots;
+        } else {
+          return !ignoreHumans;
+        }
+      })();
+      if (!filter) {
+        return;
+      }
+      this[handlerKey](user, this.message.channel, reaction);
+
+      if (triggerRender) {
+        this.reRender();
+      }
     } catch (err) {
       throwError(this.config, String(err));
     }

@@ -2,6 +2,7 @@ import { Client, Message } from 'discord.js';
 import * as path from 'path';
 import { testAccumulator } from './accumulators.test';
 import { testEcho } from './echo.test';
+import { testToggle } from './toggle.test';
 import { extractCommand, isCommand } from './util/command';
 
 // tslint:disable-next-line no-var-requires
@@ -20,6 +21,12 @@ client.on('ready', () => {
         return;
       case 'acc':
         testAccumulator(message);
+        return;
+      case 'tog':
+        testToggle(message);
+        return;
+      default:
+        console.info('Unknown command: ' + command);
         return;
     }
   });
