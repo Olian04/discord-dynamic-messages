@@ -3,6 +3,12 @@ import { IReactionRemovedConfig } from './IReactionRemovedConfig';
 
 export interface IMetadata {
   numberOfRegisteredReactionHandlers: number;
+  catchAllReactionHandler: {
+    handlerKey: string;
+  };
+  catchAllReactionRemovedHandler: {
+    handlerKey: string;
+  };
   reactionHandlers: {
     [emoji: string]: {
       registrationOrder: number;

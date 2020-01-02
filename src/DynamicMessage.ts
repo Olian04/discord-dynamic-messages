@@ -143,7 +143,7 @@ export abstract class DynamicMessage {
 
       // Setup reaction collector for known emoji
       this.reactionCollector = this.message.createReactionCollector(
-        (reaction: MessageReaction) => emojiUtils.unemojify(reaction.emoji.name) in this.metadata.reactionHandlers,
+        () => true,
       );
 
       this.message.client.on('messageReactionRemove', this.handleReactionRemoved);
@@ -159,10 +159,26 @@ export abstract class DynamicMessage {
   }
 
   private handleReactionRemoved(reaction: MessageReaction, user: User) {
+    const filter = ({ ignoreBots, ignoreHumans }: { ignoreBots: boolean; ignoreHumans: boolean }) => {
+      if (user.bot) {
+        return !ignoreBots;
+      } else {
+        return !ignoreHumans;
+      }
+    };
+
     try {
       if (reaction.message.id !== this.message.id) {
         // Not this message
         return;
+      }
+
+      if (this.metadata.catchAllReactionRemovedHandler) {
+        const {
+          handlerKey: catchAllHandlerKey,
+        } = this.metadata.catchAllReactionRemovedHandler;
+
+        this[catchAllHandlerKey](user, this.message.channel, reaction);
       }
 
       const emojiCode = emojiUtils.unemojify(reaction.emoji.name);
@@ -180,14 +196,7 @@ export abstract class DynamicMessage {
         },
       } = this.metadata.reactionRemovedHandlers[emojiCode];
 
-      const filter = (() => {
-        if (user.bot) {
-          return !ignoreBots;
-        } else {
-          return !ignoreHumans;
-        }
-      })();
-      if (!filter) {
+      if (!filter({ ignoreBots, ignoreHumans })) {
         return;
       }
       this[handlerKey](user, this.message.channel, reaction);
@@ -201,7 +210,29 @@ export abstract class DynamicMessage {
   }
 
   private async handleReaction(reaction: MessageReaction, isRetroactive: boolean) {
+    const filter = (user, { ignoreBots, ignoreHumans }: { ignoreBots: boolean; ignoreHumans: boolean }) => {
+      if (user.bot) {
+        return !ignoreBots;
+      } else {
+        return !ignoreHumans;
+      }
+    };
+
     try {
+      if (this.metadata.catchAllReactionHandler) {
+        const {
+          handlerKey: catchAllHandlerKey,
+        } = this.metadata.catchAllReactionHandler;
+
+        (await reaction.fetchUsers()).forEach((user) => {
+          this[catchAllHandlerKey](user, this.message.channel, reaction);
+        });
+      }
+
+      if (! (emojiUtils.unemojify(reaction.emoji.name) in this.metadata.reactionHandlers)) {
+        return;
+      }
+
       const emojiCode = emojiUtils.unemojify(reaction.emoji.name);
       const {
         handlerKey,
@@ -221,13 +252,7 @@ export abstract class DynamicMessage {
 
       // fetchUsers is needed for retroactive callback application
       const users = await reaction.fetchUsers();
-      users.filter((user) => {
-          if (user.bot) {
-            return !ignoreBots;
-          } else {
-            return !ignoreHumans;
-          }
-        })
+      users.filter((user) => filter(user, { ignoreBots, ignoreHumans }))
         .forEach((user) => {
           this[handlerKey](user, this.message.channel, reaction);
 

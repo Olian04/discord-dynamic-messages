@@ -1,43 +1,38 @@
-import { emoji } from 'node-emoji';
+import { MessageReaction, ReactionEmoji, User } from 'discord.js';
 import {
   DynamicMessage,
   OnReaction,
+  OnReactionRemoved,
 } from '../src/api';
 
 export class AccumulatorMessage extends DynamicMessage {
-  private accumulator: string = '';
-  constructor() {
-    super();
+  private addAccumulator: string = '';
+  private removeAccumulator: string = '';
+
+  @OnReaction(':three:', { removeWhenDone: false })
+  @OnReaction(':two:', { removeWhenDone: false })
+  @OnReaction(':one:', { removeWhenDone: false })
+  public placeholder() { /* NOP */ }
+
+  @OnReaction()
+  public on(user: User, channel, reaction: MessageReaction) {
+    if (user.bot) {
+      return;
+    }
+    this.addAccumulator += reaction.emoji.name;
+    this.reRender();
   }
 
-  @OnReaction(':thumbsup:')
-  public up() {
-    this.accumulator += emoji['+1'];
-  }
-
-  @OnReaction(':thumbsdown:')
-  public down() {
-    this.accumulator += emoji['-1'];
-  }
-
-  @OnReaction(':wrench:', {
-    hidden: true,
-  })
-  public hidden_wrench() {
-    this.accumulator += emoji.wrench;
-  }
-
-  @OnReaction(':angel:')
-  public angle() {
-    this.accumulator += emoji.angel;
-  }
-
-  @OnReaction(':alien:')
-  public alien() {
-    this.accumulator += emoji.alien;
+  @OnReactionRemoved()
+  public off(user: User, channel, reaction: MessageReaction) {
+    if (user.bot) {
+      return;
+    }
+    this.removeAccumulator += reaction.emoji.name;
+    this.reRender();
   }
 
   public render() {
-    return `Accumulator: ${this.accumulator}`;
+    return `AddAccumulator: ${this.addAccumulator}\nRemoveAccumulator: ${this.removeAccumulator}\n`;
   }
 }
