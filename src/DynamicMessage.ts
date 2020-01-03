@@ -9,7 +9,7 @@ import {
   User,
 } from 'discord.js';
 import emojiUtils from 'node-emoji';
-import { IDynamicMessageConfig } from './interfaces/IDynamicMessageConfigTame';
+import { IDynamicMessageConfig } from './interfaces/IDynamicMessageConfig';
 import { IMetadata } from './interfaces/IMetadata';
 import { metadata } from './manageMetadata';
 import { checkPermissions } from './util/checkPermission';
@@ -30,6 +30,11 @@ export abstract class DynamicMessage {
 
     this.__message =  newMessage;
     this.setupReactionCollector();
+
+    // Call init handler
+    if (this.metadata.initHandler) {
+      this[this.metadata.initHandler.handlerKey]();
+    }
   }
   public get message() {
     return this.__message;
@@ -115,6 +120,14 @@ export abstract class DynamicMessage {
     }
   }
 
+  public async addReactions(emojiNames: string[]) {
+    return emojiNames
+      .map((emojiCode) => emojiCode in this.emojiFixes ?
+        this.emojiFixes[emojiCode] : emojiUtils.get(emojiCode),
+      )
+      .reduce((promise, emoji) => promise.then(() => this.message.react(emoji)), Promise.resolve());
+  }
+
   protected abstract render(): string | RichEmbed;
 
   private async tearDownReactionCollector() {
@@ -131,15 +144,11 @@ export abstract class DynamicMessage {
   private setupReactionCollector = async () => {
     try {
       // Setup known "none-hidden" reactions on the message
-      await Object.keys(this.metadata.reactionHandlers)
+      await this.addReactions(Object.keys(this.metadata.reactionHandlers)
         .filter((emojiCode) => !this.metadata.reactionHandlers[emojiCode].config.hidden)
         .sort((a, b) =>
           this.metadata.reactionHandlers[a].registrationOrder - this.metadata.reactionHandlers[b].registrationOrder,
-        )
-        .map((emojiCode) => emojiCode in this.emojiFixes ?
-          this.emojiFixes[emojiCode] : emojiUtils.get(emojiCode),
-        )
-        .reduce((promise, emoji) => promise.then(() => this.message.react(emoji)), Promise.resolve());
+        ));
 
       // Setup reaction collector for known emoji
       this.reactionCollector = this.message.createReactionCollector(
@@ -176,9 +185,16 @@ export abstract class DynamicMessage {
       if (this.metadata.catchAllReactionRemovedHandler) {
         const {
           handlerKey: catchAllHandlerKey,
+          config,
         } = this.metadata.catchAllReactionRemovedHandler;
 
+        if (!filter(config)) { return; }
+
         this[catchAllHandlerKey](user, this.message.channel, reaction);
+
+        if (config.triggerRender) {
+          this.reRender();
+        }
       }
 
       const emojiCode = emojiUtils.unemojify(reaction.emoji.name);
@@ -222,11 +238,18 @@ export abstract class DynamicMessage {
       if (this.metadata.catchAllReactionHandler) {
         const {
           handlerKey: catchAllHandlerKey,
+          config,
         } = this.metadata.catchAllReactionHandler;
 
-        (await reaction.fetchUsers()).forEach((user) => {
-          this[catchAllHandlerKey](user, this.message.channel, reaction);
-        });
+        (await reaction.fetchUsers())
+          .filter((user) => filter(user, config))
+          .forEach((user) => {
+            this[catchAllHandlerKey](user, this.message.channel, reaction);
+          });
+
+        if (config.triggerRender) {
+          this.reRender();
+        }
       }
 
       if (! (emojiUtils.unemojify(reaction.emoji.name) in this.metadata.reactionHandlers)) {

@@ -1,20 +1,23 @@
-import { MessageReaction, ReactionEmoji, User } from 'discord.js';
+import { MessageReaction, User } from 'discord.js';
 import {
   DynamicMessage,
-  OnReaction,
-  OnReactionRemoved,
+  OnAnyReaction,
+  OnAnyReactionRemoved,
+  OnInit,
 } from '../src/api';
 
 export class AccumulatorMessage extends DynamicMessage {
   private addAccumulator: string = '';
   private removeAccumulator: string = '';
 
-  @OnReaction(':three:', { removeWhenDone: false })
-  @OnReaction(':two:', { removeWhenDone: false })
-  @OnReaction(':one:', { removeWhenDone: false })
-  public placeholder() { /* NOP */ }
+  @OnInit
+  public init() {
+    this.addReactions([
+      ':one:', ':two:', ':three:',
+    ]);
+  }
 
-  @OnReaction()
+  @OnAnyReaction()
   public on(user: User, channel, reaction: MessageReaction) {
     if (user.bot) {
       return;
@@ -23,7 +26,7 @@ export class AccumulatorMessage extends DynamicMessage {
     this.reRender();
   }
 
-  @OnReactionRemoved()
+  @OnAnyReactionRemoved()
   public off(user: User, channel, reaction: MessageReaction) {
     if (user.bot) {
       return;

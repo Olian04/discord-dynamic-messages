@@ -3,7 +3,7 @@ import {
   PermissionResolvable,
   Permissions,
 } from 'discord.js';
-import { IDynamicMessageConfig } from '../interfaces/IDynamicMessageConfigTame';
+import { IDynamicMessageConfig } from '../interfaces/IDynamicMessageConfig';
 import { throwError } from './throwError';
 
 export const checkPermissions = (config: IDynamicMessageConfig, guild: Guild)  => {
