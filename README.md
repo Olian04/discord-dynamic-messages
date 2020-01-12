@@ -253,13 +253,13 @@ class Foo extends DynamicMessage {
 ### OnReactionRemoved
 
 ```ts
-type OnReactionRemoved = (emoji: string, config?:IReactionConfig) => Decorator<(user: Discord.User, channel: Discord.Channel, reaction: Discord.Reaction) => void>
+type OnReactionRemoved = (emoji: string, config?:IReactionRemovedConfig) => Decorator<(user: Discord.User, channel: Discord.Channel, reaction: Discord.Reaction) => void>
 ```
 
 OnReactionRemoved is a decorator that tells the dynamic message what functions to call in response to what emoji when a reaction removed from the corresponding "discord text message".
 
 ```ts
-interface IReactionConfig {
+interface IReactionRemovedConfig {
   
   // (default: true) when true the bot will call the render method of the dynamic message after the reaction callback have executed.
   triggerRender?: boolean;
@@ -377,4 +377,4 @@ _See the [/demo](./demo/) folder_
 1. Grab your discord-bot secret from the [discord developer portal](https://discordapp.com/developers/applications).
 2. Create a `secrets.json` file and store your discord-bot secret as `discord_token` inside it.
 3. Install dependencies: `npm i`.
-4. Start demo: `npm run demo:start`.
+4. Start demo: `npm run demo`.
