@@ -94,6 +94,28 @@ class Foo extends DynamicMessage {
 }
 ```
 
+#### DynamicMessage#addReactions
+
+```ts
+type addReactions = (emoji: string[]) => void
+```
+
+Used to manually add reactions to a message.
+
+```ts
+class Foo extends DynamicMessage {
+  public addOneTwoThree() {
+    this.addReactions([
+      ':one:', ':two:', ':three:',
+    ]);
+  }
+  
+  public render() {
+    return 'stuff';
+  }
+}
+```
+
 #### DynamicMessage#sendTo
 
 ```ts
@@ -158,6 +180,29 @@ client.on('message', (msg) => {
   // Attach in the same way as DynamicMessage#replyTo
   new Foo().attachTo(reply, msg.author);
 })
+```
+
+### OnInit
+
+```ts
+type OnInit = Decorator<() => void>
+```
+
+OnInit is a decorator that tells the dynamic message what functions to call when a discord text message is attached to the dynamic message. Note that if the dynamic message is reused (aka attached to another discord text message after the first one) the init function will fire again.
+
+```ts
+class Foo extends DynamicMessage {
+
+  @OnInit
+  public initialize() {
+    console.log(this.message.content);
+    // => stuff
+  }
+
+  public render() {
+    return 'stuff';
+  }
+}
 ```
 
 ### OnReaction
@@ -245,6 +290,80 @@ class Foo extends DynamicMessage {
 
   public render() {
     return '```diff\n' + (this.toggle ? '+ on' : '- off') + '\n```';
+  }
+}
+```
+
+### OnAnyReaction
+
+```ts
+type OnAnyReaction = (config?:ICatchAllConfig) => Decorator<(user: Discord.User, channel: Discord.Channel, reaction: Discord.Reaction) => void>
+```
+
+OnAnyReaction is a decorator that tells the dynamic message what functions to call when any reaction is made on the corresponding "discord text message".
+
+```ts
+interface ICatchAllConfig {
+
+  // (default: true) when true the bot will call the render method of the dynamic message after the reaction callback have executed.
+  triggerRender?: boolean;
+  
+  // (default: true) should reactions from bots trigger this callback?
+  ignoreBots?: boolean;
+  
+  // (default: false) should reactions from humans trigger this callback?
+  ignoreHumans?: boolean;
+ }
+```
+
+```ts
+export class Foo extends DynamicMessage {
+  private accumulator: string = '';
+
+  @OnAnyReaction()
+  public accumulate(user, channel, reaction) {
+    this.accumulator += reaction.emoji.name;
+  }
+
+  public render() {
+    return `Accumulator: ${this.addAccumulator}`;
+  }
+}
+```
+
+### OnAnyReactionRemoved
+
+```ts
+type OnAnyReactionRemoved = (config?:ICatchAllConfig) => Decorator<(user: Discord.User, channel: Discord.Channel, reaction: Discord.Reaction) => void>
+```
+
+OnAnyReaction is a decorator that tells the dynamic message what functions to call when any reaction is removed from the corresponding "discord text message".
+
+```ts
+interface ICatchAllConfig {
+
+  // (default: true) when true the bot will call the render method of the dynamic message after the reaction callback have executed.
+  triggerRender?: boolean;
+  
+  // (default: true) should reactions from bots trigger this callback?
+  ignoreBots?: boolean;
+  
+  // (default: false) should reactions from humans trigger this callback?
+  ignoreHumans?: boolean;
+ }
+```
+
+```ts
+export class Foo extends DynamicMessage {
+  private accumulator: string = '';
+
+  @OnAnyReactionRemoved()
+  public accumulate(user, channel, reaction) {
+    this.accumulator += reaction.emoji.name;
+  }
+
+  public render() {
+    return `Accumulator: ${this.addAccumulator}`;
   }
 }
 ```

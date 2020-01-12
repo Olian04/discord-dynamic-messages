@@ -233,7 +233,7 @@ export abstract class DynamicMessage {
         return !ignoreHumans;
       }
     };
-
+    
     try {
       if (this.metadata.catchAllReactionHandler) {
         const {

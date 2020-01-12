@@ -1,3 +1,4 @@
+import { ICatchAllConfig } from './ICatchAllConfig';
 import { IReactionConfig } from './IReactionConfig';
 import { IReactionRemovedConfig } from './IReactionRemovedConfig';
 
@@ -8,11 +9,11 @@ export interface IMetadata {
   numberOfRegisteredReactionHandlers: number;
   catchAllReactionHandler: {
     handlerKey: string;
-    config: IReactionConfig;
+    config: ICatchAllConfig;
   };
   catchAllReactionRemovedHandler: {
     handlerKey: string;
-    config: IReactionRemovedConfig;
+    config: ICatchAllConfig;
   };
   reactionHandlers: {
     [emoji: string]: {

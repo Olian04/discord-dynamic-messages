@@ -1,13 +1,13 @@
-import { IReactionRemovedConfig } from '../interfaces/IReactionRemovedConfig';
+import { ICatchAllConfig } from '../interfaces/ICatchAllConfig';
 import { metadata } from '../manageMetadata';
 
-const defaultReactionConfig = (): IReactionRemovedConfig => ({
+const defaultReactionConfig = (): ICatchAllConfig => ({
   triggerRender: true,
   ignoreBots: true,
   ignoreHumans: false,
 });
 
-export const OnAnyReactionRemoved = (config: Partial<IReactionRemovedConfig> = {}) => (
+export const OnAnyReactionRemoved = (config: Partial<ICatchAllConfig> = {}) => (
   target: object,
   propertyKey: string,
   descriptor: PropertyDescriptor,

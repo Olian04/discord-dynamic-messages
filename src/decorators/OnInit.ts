@@ -1,4 +1,3 @@
-import { IReactionConfig } from '../interfaces/IReactionConfig';
 import { metadata } from '../manageMetadata';
 
 export const OnInit = (
