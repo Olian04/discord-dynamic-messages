@@ -1,6 +1,6 @@
 {
   "name": "discord-dynamic-messages",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "description": "Create auto-updating component-like messages in discord.js with ease.",
   "main": "dist/api.js",
   "scripts": {
@@ -15,6 +15,15 @@
     "type": "git",
     "url": "git+https://github.com/Olian04/discordjs-dynamic-messages.git"
   },
+  "keywords": [
+    "discord",
+    "discordjs",
+    "discord.js",
+    "bot",
+    "message",
+    "messages",
+    "dynamic"
+  ],
   "author": "Olian04",
   "license": "MIT",
   "bugs": {
