@@ -24,7 +24,20 @@ client.on('ready', async ()  => {
     if (! message.content.startsWith('$')) { return; }
     const [command, ...args] = message.content.substr(1).split(' ');
 
-    if (command === 'count') {
+    if (command === 'help') {
+      message.reply(`
+        Available commands are:
+        - help
+        - count [startCount]
+        - echo <msg>
+        - acc
+        - num
+        - toggle
+        - attach
+        - retro
+        - rich
+      `);
+    } else if (command === 'count') {
       new CounterMessage({
         initialCounterValue: Number(args[0] || '0'),
       }).sendTo(message.channel);
