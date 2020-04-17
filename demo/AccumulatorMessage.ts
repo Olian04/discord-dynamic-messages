@@ -4,7 +4,7 @@ import {
   OnAnyReaction,
   OnAnyReactionRemoved,
   OnInit,
-} from '../src/api';
+} from '../old_src/api';
 
 export class AccumulatorMessage extends DynamicMessage {
   private addAccumulator: string = '';

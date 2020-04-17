@@ -1,4 +1,4 @@
-import { DynamicMessage, OnReaction } from '../src/api';
+import { DynamicMessage, OnReaction } from '../old_src/api';
 
 export class AttachMessage extends DynamicMessage {
   @OnReaction(':thumbsup:')

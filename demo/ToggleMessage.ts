@@ -1,5 +1,5 @@
 // tslint:disable
-import { DynamicMessage, OnReaction, OnReactionRemoved } from "../src/api";
+import { DynamicMessage, OnReaction, OnReactionRemoved } from "../old_src/api";
 
 export class ToggleMessage extends DynamicMessage {
   private toggle: boolean = false;

@@ -1,5 +1,5 @@
 import { RichEmbed } from 'discord.js';
-import { DynamicMessage, OnReaction } from '../src/api';
+import { DynamicMessage, OnReaction } from '../old_src/api';
 
 const first = () => new RichEmbed()
   .setAuthor('TOTO', 'https://i.imgur.com/ezC66kZ.png')

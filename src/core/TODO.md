@@ -1,0 +1,1 @@
+This folder should contain the core logic on the library
