@@ -1,11 +1,23 @@
-import { dynamicMessage, useReaction } from '../src/api';
+import { dynamicMessage, useReaction, useState } from '../src/api';
 import { Client } from 'discord.js';
 
 const HelloWorldMessage = dynamicMessage(() => {
-  const reaction = useReaction(':thumbsup:');
-  reaction.show();
+  const state = useState({
+    count:0,
+  });
 
-   return `Hello World`;
+  const thumbsUp = useReaction(':thumbsup:');
+  thumbsUp.show();
+
+  thumbsUp.on('added', () => {
+    state.count += 1;
+  });
+
+  thumbsUp.on('removed', () => {
+    state.count -= 1;
+  });
+
+   return `Count: ${state.count}`;
 });
 
 const client = new Client();

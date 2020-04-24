@@ -4,7 +4,8 @@
       "module": "commonjs",
       "lib": [
           "esnext",
-          "es7"
+          "es7",
+          "es2019.array"
       ],
       "outDir": "dist/",
       "declaration": true,

@@ -1,4 +1,14 @@
-import { TextChannel, MessageEmbed, Message, EmojiResolvable } from 'discord.js';
+import {
+  TextChannel,
+  MessageEmbed,
+  Message,
+  EmojiResolvable,
+  MessageReaction,
+  User,
+  PartialUser,
+} from 'discord.js';
+
+type ReactionHandler = (reaction: MessageReaction, user: User | PartialUser) => void;
 
 /**
  * MessageProxy exists to limit the amount of discord.js implementation details
@@ -9,12 +19,49 @@ import { TextChannel, MessageEmbed, Message, EmojiResolvable } from 'discord.js'
  * if the discord.js api changes.
  */
 export class MessageProxy {
-  private message: Message;
+  private __message: Message;
+  private set message(value) {
+    this.__message = value;
+    this.__message.client.on('messageReactionAdd', this.reactionAddedHandler);
+    this.__message.client.on('messageReactionRemove', this.reactionRemovedHandler);
+  }
+  private get message() {
+    return this.__message;
+  }
 
-  async addReaction(emoji: EmojiResolvable) {
-    console.log(emoji);
+  private reactionAddedHandler: ReactionHandler;
+  private reactionRemovedHandler: ReactionHandler;
+
+  onReactionAdded(handler: ReactionHandler) {
+    this.reactionAddedHandler = (reaction, user) => {
+      const target =  reaction.message;
+      if (target.id !== this.__message.id) return;
+      handler(reaction, user);;
+    };
+  }
+  onReactionRemoved(handler: ReactionHandler) {
+    this.reactionRemovedHandler = (reaction, user) => {
+      const target =  reaction.message;
+      if (target.id !== this.__message.id) return;
+      handler(reaction, user);;
+    };
+  }
+
+  async showReaction(emoji: EmojiResolvable) {
     return this.message.react(emoji)
       .catch(console.error);
+  }
+
+  async hideReaction(emoji: EmojiResolvable) {
+    return this.message.reactions.cache
+      .filter(r => r.emoji.name === emoji)
+      .find(r => r.me)
+      .remove()
+      .catch(console.error);
+  }
+
+  async updateContents(content: string, embed: MessageEmbed) {
+    this.message.edit(content, { embed });
   }
 
   async sendToChannel(channel: TextChannel, initialContent: string | MessageEmbed) {

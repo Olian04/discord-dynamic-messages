@@ -1,39 +1,55 @@
-import { SetupFunction as __SetupFunction } from './core/interfaces/SetupFunction';
-import { Component } from './core/component';
-import { MessageProxy } from './discord/MessageProxy';
 import { TextChannel } from 'discord.js';
-import { Transaction } from './core/interfaces/Transaction';
-import { processTransaction } from './discord/processTransaction';
+import { hookInternalFactory } from './core/hookInternalFactory';
+import { BuilderFunction } from './core/interfaces/BuilderFunction';
+import { MessageProxy } from './discord/MessageProxy';
+import { processEffect } from './discord/processEffect';
+import { Effect } from './core/interfaces/effects';
+import { resolveEmojiName } from './discord/util/resolveEmoji';
 
-export type SetupFunction<T> = (props: T) => ReturnType<__SetupFunction>;
+type SetupFunction<T> = (options: T) => ReturnType<BuilderFunction>;
 
-export const messageConstructor = <T extends object>(setup: SetupFunction<T>) => (props?: T) => {
+export const messageConstructor = <T>(setup: SetupFunction<T>) => (options?: T) => {
   const message = new MessageProxy();
-  const setupFunction = setup.bind(null, props);
 
-  let isAttached = false;
-  const transactionQueue: Transaction[] = [];
-  const processTransactionQueue = () => {
-    while (transactionQueue.length > 0) {
-      const transaction = transactionQueue.shift();
-      processTransaction(message, transaction);
-    }
-  }
-
-  const component = new Component(setupFunction, (transaction) => {
-    if (! isAttached) {
-      transactionQueue.push(transaction);
+  let isMessageAttached = false;
+  let pendingEffects: Effect[] = [];
+  const internals = hookInternalFactory(() => setup(options), (effects) => {
+    if (!isMessageAttached) {
+      pendingEffects.push(...effects);
       return;
     }
-    processTransaction(message, transaction);
+    processEffects(effects);
+  });
+
+  const processEffects = (effects: Effect[]) => {
+    effects.forEach(effect => {
+      processEffect(message, effect);
+    });
+  }
+
+  message.onReactionAdded((reaction, user) => {
+    if (user.bot) {
+      internals.handleReaction('shown', resolveEmojiName(reaction.emoji.name));
+    } else {
+      internals.handleReaction('added', resolveEmojiName(reaction.emoji.name));
+    }
+  });
+
+  message.onReactionRemoved((reaction, user) => {
+    if (user.bot) {
+      internals.handleReaction('hid', resolveEmojiName(reaction.emoji.name));
+    } else {
+      internals.handleReaction('removed', resolveEmojiName(reaction.emoji.name));
+    }
   });
 
   return {
-    sendTo: (channel: TextChannel) => {
-      message.sendToChannel(channel, component.cachedContent)
+    sendTo: (channel: TextChannel, placeholderMessage?: string) => {
+      message.sendToChannel(channel, placeholderMessage ?? 'Loading...')
         .then(() => {
-          isAttached = true;
-          processTransactionQueue();
+          isMessageAttached = true;
+          processEffects(pendingEffects);
+          pendingEffects = [];
         });
     }
   };

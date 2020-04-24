@@ -13,9 +13,13 @@ const emojiFixes = {
   ':nine:': '\u0039\u20E3',
 };
 
-export const resolveEmoji = (emojiCode: string) => {
+export const resolveEmoji = (emojiCode: string): string => {
   if (emojiCode in emojiFixes) {
     return emojiFixes[emojiCode];
   }
   return emojiUtils.get(emojiCode);
+}
+
+export const resolveEmojiName = (emoji: string): string => {
+  return emojiUtils.unemojify(emoji);
 }

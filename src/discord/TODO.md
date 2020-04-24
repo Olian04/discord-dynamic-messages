@@ -1,1 +1,0 @@
-This folder should contain logic needed to integrate with discord.js

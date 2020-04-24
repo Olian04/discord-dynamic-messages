@@ -1,47 +1,27 @@
-import { getContext  } from '../core/contextHandler';
+import { getContext  } from '../core/util/contextHandler';
 
-const internalState = new WeakMap();
-
-// Pseudo code for the useReaction logic
 export const useReaction = (emoji) => {
-   const ctx = getContext();
-   if (!internalState.has(ctx)) {
-     internalState.set(ctx, {
-       visible: false,
-     });
-   }
-   const state = internalState.get(ctx);
-   const api = {
-     show: () => {
-        if (state.visible) {
-          // Already visible
-          return;
-        }
-        internalState.set(ctx, {
-          ...state,
-          visible: true,
-        });
-        ctx.commitTransaction({
-           subject: 'reaction',
-           operation: 'add',
-           arguments: [ emoji ]
-        });
-     },
-     hide: () => {
-      if (!state.visible) {
-        // Already hidden
-        return;
+  const ctx = getContext();
+  return {
+    show() {
+      ctx.__pendingEffects.push({
+        subject: 'reaction',
+        operation: 'show',
+        arguments: [ emoji ],
+      });
+    },
+    hide() {
+      ctx.__pendingEffects.push({
+        subject: 'reaction',
+        operation: 'hide',
+        arguments: [ emoji ],
+      });
+    },
+    on(event: keyof typeof ctx.__reactionHandlers[typeof emoji], handler) {
+      if (! (emoji in ctx.__reactionHandlers)) {
+        ctx.__reactionHandlers[emoji] = {};
       }
-      internalState.set(ctx, {
-        ...state,
-        visible: false,
-      });
-      ctx.commitTransaction({
-         subject: 'reaction',
-         operation: 'remove',
-         arguments: [ emoji ]
-      });
-     }
-   };
-   return api;
+      ctx.__reactionHandlers[emoji][event] = handler;
+    }
+  }
 }
