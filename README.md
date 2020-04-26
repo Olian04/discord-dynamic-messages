@@ -48,21 +48,6 @@ const LoggerMessage = dynamicMessage(() => {
 
    return `Logger`;
 });
-
-const client = new Client();
-client.on('ready', () => {
-  client.on('message', (message) => {
-    if (! message.content.startsWith('!test')) { return; }
-    if (message.channel.type === 'text') {
-      LoggerMessage().sendTo(message.channel);
-    }
-  });
-});
-
-(async () => {
-  const { discord_token } = await import('../secrets.json');
-  await client.login(discord_token);
-})();
 ```
 
 ### useState
@@ -80,19 +65,61 @@ const CountingMessage = dynamicMessage(() => {
 
    return `Counting up every second: ${state.count}`;
 });
+```
 
-const client = new Client();
-client.on('ready', () => {
-  client.on('message', (message) => {
-    if (! message.content.startsWith('!test')) { return; }
-    if (message.channel.type === 'text') {
-      CountingMessage().sendTo(message.channel);
-    }
-  });
+### useChannel
+
+```ts
+import { dynamicMessage, useChannel  } from '../src/api';
+
+export const InfoMessage = dynamicMessage(() => {
+  const channel = useChannel();
+  return `Channel: ${channel.get()?.name}`;
 });
+```
 
-(async () => {
-  const { discord_token } = await import('../secrets.json');
-  await client.login(discord_token);
-})();
+### useGuild
+
+```ts
+import { dynamicMessage, useGuild  } from '../src/api';
+
+export const InfoMessage = dynamicMessage(() => {
+  const guild = useGuild();
+  return `Guild: ${guild.get()?.name}`;
+});
+```
+
+### useInterval
+
+```ts
+import { dynamicMessage, useState, useInterval } from '../src/api';
+
+export const TickMessage = dynamicMessage(() => {
+  const state = useState({
+    count:0,
+  });
+
+  useInterval(3000, () => {
+    state.count += 1;
+  });
+
+   return `${state.count % 2 === 0 ? 'Tick' : 'Tock'}: ${state.count}`;
+});
+```
+
+### onAttached & onDetached
+
+```ts
+import { dynamicMessage, onAttached, onDetached } from '../src/api';
+
+export const TickMessage = dynamicMessage(() => {
+  onAttached(() => {
+    console.log('Attached!');
+  });
+  onAttached(() => {
+    console.log('Attached!');
+  });
+
+  return 'Life cycle events';
+});
 ```
