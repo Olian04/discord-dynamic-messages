@@ -116,7 +116,7 @@ export const TickMessage = dynamicMessage(() => {
   onAttached(() => {
     console.log('Attached!');
   });
-  onAttached(() => {
+  onDetached(() => {
     console.log('Attached!');
   });
 
