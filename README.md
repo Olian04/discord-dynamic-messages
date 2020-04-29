@@ -117,7 +117,7 @@ export const TickMessage = dynamicMessage(() => {
     console.log('Attached!');
   });
   onDetached(() => {
-    console.log('Attached!');
+    console.log('Detached!');
   });
 
   return 'Life cycle events';
