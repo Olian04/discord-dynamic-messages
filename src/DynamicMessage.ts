@@ -1,12 +1,12 @@
 import {
   Client,
   DMChannel,
-  GroupDMChannel,
   Message,
   MessageReaction, ReactionCollector,
-  RichEmbed,
+  MessageEmbed,
   TextChannel,
   User,
+  NewsChannel,
 } from 'discord.js';
 import emojiUtils from 'node-emoji';
 import { IDynamicMessageConfig } from './interfaces/IDynamicMessageConfig';
@@ -76,7 +76,7 @@ export abstract class DynamicMessage {
     this.metadata = metadata.get(this);
   }
 
-  public async sendTo(channel: TextChannel | DMChannel | GroupDMChannel) {
+  public async sendTo(channel: TextChannel | DMChannel | NewsChannel) {
     try {
       this.message = (await channel.send(this.render())) as Message;
     } catch (err) {
@@ -128,13 +128,12 @@ export abstract class DynamicMessage {
       .reduce((promise, emoji) => promise.then(() => this.message.react(emoji)), Promise.resolve());
   }
 
-  protected abstract render(): string | RichEmbed;
+  protected abstract render(): string | MessageEmbed;
 
   private async tearDownReactionCollector() {
     try {
-      await this.message.clearReactions();
-      this.reactionCollector.removeAllListeners()
-        .cleanup();
+      await this.message.reactions.removeAll();
+      this.reactionCollector.removeAllListeners();
       this.message.client.off('messageReactionRemove', this.handleReactionRemoved);
     } catch (err) {
       throwError(this.config, String(err));
@@ -161,7 +160,7 @@ export abstract class DynamicMessage {
       this.reactionCollector.on('collect', (reaction) => this.handleReaction(reaction, false));
 
       // Retroactively handle reaction already on the message
-      this.message.reactions.forEach((reaction) => this.handleReaction(reaction, true));
+      this.message.reactions.cache.forEach((reaction) => this.handleReaction(reaction, true));
     } catch (err) {
       throwError(this.config, String(err));
     }
@@ -241,7 +240,7 @@ export abstract class DynamicMessage {
           config,
         } = this.metadata.catchAllReactionHandler;
 
-        (await reaction.fetchUsers())
+        (await reaction.users.fetch())
           .filter((user) => filter(user, config))
           .forEach((user) => {
             this[catchAllHandlerKey](user, this.message.channel, reaction);
@@ -274,13 +273,13 @@ export abstract class DynamicMessage {
       }
 
       // fetchUsers is needed for retroactive callback application
-      const users = await reaction.fetchUsers();
+      const users = await reaction.users.fetch();
       users.filter((user) => filter(user, { ignoreBots, ignoreHumans }))
         .forEach((user) => {
           this[handlerKey](user, this.message.channel, reaction);
 
           if (removeWhenDone) {
-            reaction.remove(user);
+            reaction.users.remove(user);
           }
         });
 
