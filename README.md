@@ -1,5 +1,11 @@
 # discord-dynamic-messages
 
+> __NOTE:__ This is the latest version of the library for discord.js major version 11.
+> 
+> __Download this version:__ https://www.npmjs.com/package/discord-dynamic-messages/v/3.3.1
+>
+> __Find latest version (discordjs v12+):__ https://github.com/Olian04/discord-dynamic-messages
+
 __What exactly is the usage of this lib?__
 
 Basically it helps with creating messages that dynamically change their contents based on how ppl react on it. Aka, the message content acts as a screen, and the reactions act as input buttons.
