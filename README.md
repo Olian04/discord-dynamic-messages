@@ -53,6 +53,12 @@ __Note:__ This library depends on typescript decorators, and will therefore not 
 
 _Note: If you are using vscode you might need to set `javascript.implicitProjectConfig.experimentalDecorators` to `true` in the workspace settings._
 
+## Discord.js v11
+
+From here on out support for v11 has been discontinued.
+
+However an old version of the library can be found here: <https://github.com/Olian04/discord-dynamic-messages/tree/Discord.js-v11>
+
 ## Documentation
 
 ### DynamicMessage
