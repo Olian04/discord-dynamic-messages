@@ -1,19 +1,19 @@
-import { RichEmbed } from 'discord.js';
+import { MessageEmbed } from 'discord.js';
 import { DynamicMessage, OnReaction } from '../src/api';
 
-const first = () => new RichEmbed()
+const first = () => new MessageEmbed()
   .setAuthor('TOTO', 'https://i.imgur.com/ezC66kZ.png')
   .setColor('#AAA')
   .setTitle('First')
   .setDescription('First');
 
-const second = () => new RichEmbed()
+const second = () => new MessageEmbed()
   .setAuthor('TOTO', 'https://i.imgur.com/ezC66kZ.png')
   .setColor('#548')
   .setTitle('Second')
   .setDescription('Second');
 
-const third = () => new RichEmbed()
+const third = () => new MessageEmbed()
   .setAuthor('TOTO', 'https://i.imgur.com/ezC66kZ.png')
   .setColor('#35D')
   .setTitle('Third')
@@ -21,7 +21,7 @@ const third = () => new RichEmbed()
 
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
-export class RichEmbedMessage extends DynamicMessage {
+export class MessageEmbedMessage extends DynamicMessage {
   private embeds = [first, second, third];
   private embedIndex = 0;
 

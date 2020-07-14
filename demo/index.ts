@@ -6,7 +6,7 @@ import { AttachMessage } from './AttachMessage';
 import { CounterMessage } from './CounterMessage';
 import { EchoMessage } from './EchoMessage';
 import { NumericEmojiMessage } from './NumericEmojiMessage';
-import { RichEmbedMessage } from './RichEmbedMessage';
+import { MessageEmbedMessage } from './MessageEmbedMessage';
 import { ToggleMessage } from './ToggleMessage';
 
 // tslint:disable-next-line no-var-requires
@@ -62,7 +62,7 @@ client.on('ready', async ()  => {
         }, 3000);
       });
     } else if (command === 'rich') {
-      new RichEmbedMessage().sendTo(message.channel);
+      new MessageEmbedMessage().sendTo(message.channel);
     }
   });
 });
