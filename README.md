@@ -4,31 +4,68 @@ __IMPORTANT NOTICE:__ This is the development branch for the hooks API, and its 
 
 __DO NOT USE THIS BRANCH IN PRODUCTION!__
 
-## API (So far)
-
-### Hello world
-
 ```ts
-import { dynamicMessage } from 'discord-dynamic-messages';
+import { dynamicMessage, dynamicMessageManager } from 'discord-dynamic-messages';
 
-const HelloWorld = dynamicMessage(() => {
-  return 'Hello World';
+const counterMessage = dynamicMessage('counter', 'v1', () => {
+   const [count, setCount] = useState('count', 0);
+   const {onAdded, onRemoved, addSelf, removeSelf} = useReaction(':thumbsup:');
+   const {onAdded: onCrossEmoji} = useReaction(':redcross:');
+   const {detach} = useSelf();
+
+   onCrossEmoji(() => {
+       detach();
+   });
+
+   onAttached(() => {
+      addSelf();
+   });
+
+  onDetached(() => {
+      removeSelf();
+   });
+   
+   onAdded(() => setCount(c => c+1));
+   onRemoved(() => setCount(c => c-1));
+
+   return `Count: ${count}`;
+});
+
+const dmm = new DynamicMessageManager({
+  db: new FirebaseDBManager(firebaseConfig),
 });
 
 const client = new Client();
-client.on('ready', () => {
-  client.on('message', (message) => {
-    if (message.channel.type === 'text') {
-      HelloWorld().sendTo(message.channel);
-    }
-  });
+client.on('message', async (message) => {
+  if (message.channel.type !== 'text') return;
+  if (message.content !== '!count') return;
+
+  dmm.sendTo(message.channel, counterMessage);
 });
 
 (async () => {
+
   const { discord_token } = await import('../secrets.json');
   await client.login(discord_token);
 })();
 ```
+
+## API (So far)
+
+Statefull hooks:
+useState
+useReaction
+
+Reflective-state hooks:
+useGuild
+useChannel
+useMessage
+useClient
+useSelf
+
+Lifecycle hooks:
+onAttached
+onDetached
 
 ### useReaction
 
